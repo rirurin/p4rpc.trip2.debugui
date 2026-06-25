@@ -1,0 +1,72 @@
+{
+  "ModId": "p4rpc.trip2.debugui",
+  "ModName": "[trip2] ImGui Debug UI",
+  "ModAuthor": "Rirurin",
+  "ModVersion": "0.1.0",
+  "ModDescription": "Hosts a debug GUI window using ImGui",
+  "ModDll": "p4rpc.trip2.debugui.dll",
+  "ModIcon": "Preview.png",
+  "ModR2RManagedDll32": "x86/p4rpc.trip2.debugui.dll",
+  "ModR2RManagedDll64": "x64/p4rpc.trip2.debugui.dll",
+  "ModNativeDll32": "",
+  "ModNativeDll64": "",
+  "IsLibrary": false,
+  "ReleaseMetadataFileName": "p4rpc.trip2.debugui.ReleaseMetadata.json",
+  "PluginData": {
+    "GitHubDependencies": {
+      "IdToConfigMap": {
+        "Reloaded.Memory.SigScan.ReloadedII": {
+          "Config": {
+            "UserName": "Reloaded-Project",
+            "RepositoryName": "Reloaded.Memory.SigScan",
+            "UseReleaseTag": false,
+            "AssetFileName": "Mod.zip"
+          },
+          "ReleaseMetadataName": "Reloaded.Memory.SigScan.ReloadedII.ReleaseMetadata.json"
+        },
+        "reloaded.sharedlib.hooks": {
+          "Config": {
+            "UserName": "Sewer56",
+            "RepositoryName": "Reloaded.SharedLib.Hooks.ReloadedII",
+            "UseReleaseTag": true,
+            "AssetFileName": "reloaded.sharedlib.hooks.zip"
+          },
+          "ReleaseMetadataName": "Sewer56.Update.ReleaseMetadata.json"
+        },
+        "riri.modruntime": {
+          "Config": {
+            "UserName": "Rirurin",
+            "RepositoryName": "riri-mod-tools",
+            "UseReleaseTag": true,
+            "AssetFileName": "Mod.zip"
+          },
+          "ReleaseMetadataName": "riri.modruntime.ReleaseMetadata.json"
+        },
+        "SharedScans.Reloaded": {
+          "Config": {
+            "UserName": "RyoTune",
+            "RepositoryName": "SharedScans",
+            "UseReleaseTag": false,
+            "AssetFileName": "Mod.zip"
+          },
+          "ReleaseMetadataName": "SharedScans.Reloaded.ReleaseMetadata.json"
+        }
+      }
+    }
+  },
+  "IsUniversalMod": false,
+  "ModDependencies": [
+    "Reloaded.Memory.SigScan.ReloadedII",
+    "reloaded.sharedlib.hooks",
+    "riri.modruntime",
+    "SharedScans.Reloaded"
+  ],
+  "OptionalDependencies": [],
+  "SupportedAppId": [
+    "Chronos-Win64-Shipping.exe",
+    "p3r.exe",
+    "p4r.exe",
+    "Sandfall-Win64-Shipping.exe"
+  ],
+  "ProjectUrl": ""
+}

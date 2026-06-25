@@ -1,0 +1,15 @@
+# C#
+
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+
+**/.idea/*
+**/.vs/*
+*.sln.DotSettings.user
+
+# Rust
+**/target/*
+Cargo.lock

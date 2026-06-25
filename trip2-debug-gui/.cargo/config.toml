@@ -1,0 +1,2 @@
+# [target.'cfg(target_arch = "x86_64")']
+# rustflags = ["-C", "panic=abort", "-C", "lto=fat", "-C", "embed-bitcode=yes", "-C", "target-feature=+avx2"]

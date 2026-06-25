@@ -1,0 +1,44 @@
+cargo-features = ["panic-immediate-abort"]
+
+[package]
+name = "trip2-debug-gui"
+version = "0.1.0"
+authors = [ "Rirurin" ]
+categories = [ "games" ]
+homepage = "https://riri.wtf"
+repository = "https://github.com/rirurin/p4rpc.trip2.debugui"
+license = "GPL-3"
+edition = "2024"
+
+[dependencies]
+humantime = "2.3.0"
+gilrs-imgui-support = { git = "https://github.com/rirurin/gilrs-imgui-support" }
+glam = "0.32"
+# glam = "0.33.1" # for migration to ash
+image = "0.25"
+imgui = { git = "https://github.com/rirurin/imgui-rs", features = ["docking", "tables-api"] }
+imgui-winit-support = { git = "https://github.com/rirurin/imgui-winit-support" }
+riri-imgui-vulkano = { git = "https://github.com/rirurin/riri-imgui-vulkano" }
+riri-inspector-components = { git = "https://github.com/rirurin/riri-imgui-components", features = ["imgui-riri"] }
+riri-mod-tools-proc = { git = "https://github.com/rirurin/riri-mod-tools" }
+riri-mod-tools-rt = { git = "https://github.com/rirurin/riri-mod-tools", features = ["detailed-logs"] }
+vulkano = "0.35"
+winit = { git = "https://github.com/rirurin/winit" }
+
+[target.'cfg(windows)'.dependencies.windows]
+version = "0.62.2"
+features = [
+    "Win32_UI_WindowsAndMessaging"
+]
+
+[build-dependencies]
+riri-imgui-vulkano-shaders = { git = "https://github.com/rirurin/riri-imgui-vulkano", optional = true }
+riri-mod-tools = { git = "https://github.com/rirurin/riri-mod-tools" }
+shaderc = { version = "0.10.1", optional = true }
+
+[features]
+default = []
+use_compiler = ["dep:riri-imgui-vulkano-shaders", "dep:shaderc", "riri-imgui-vulkano/use_compiler"]
+
+[profile.dev]
+panic = "immediate-abort"

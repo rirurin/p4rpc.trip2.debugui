@@ -1,0 +1,18 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+    
+    <Target Name="BuildRust" BeforeTargets="Build">
+        <PropertyGroup>
+            <RustProjectPath>$(MSBuildProjectDirectory)/../$(RustProject)</RustProjectPath>
+            <RustTargetDirectory>$(RustProjectPath)/target/$(RustTarget)/debug</RustTargetDirectory>
+        </PropertyGroup>
+        <ItemGroup>
+            <RustBuildOutput Include="$(RustTargetDirectory)/*.dll;$(RustTargetDirectory)/*.dll.*;$(RustTargetDirectory)/*.pdb;"/>
+            <Trip2GuiFonts Include="$(RustTargetDirectory)/data/*"/>
+            <Trip2GuiShaders Include="$(RustTargetDirectory)/shaders/*"/>
+        </ItemGroup>
+        <Exec Command="cargo +nightly rustc --lib -Z build-std=std,panic_abort --crate-type cdylib --target $(RustTarget)" WorkingDirectory="$(RustProjectPath)"/>
+        <Copy SourceFiles="@(RustBuildOutput)" DestinationFolder="$(OutputPath)"/>
+        <Copy SourceFiles="@(Trip2GuiFonts)" DestinationFolder="$(OutputPath)/data"/>
+        <Copy SourceFiles="@(Trip2GuiShaders)" DestinationFolder="$(OutputPath)/shaders"/>
+    </Target>
+</Project>
