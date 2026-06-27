@@ -49,6 +49,7 @@ fn main() {
     // Copy fonts to output directory
     let font_names = [
         "data/LibreBodoni-Bold.ttf",
+        "data/QwitcherGrypen-Bold.ttf",
         "data/NotoSansCJKjp-Medium.otf"
     ];
     let fonts_in = font_names.map(|v| base.join(v));

@@ -1,0 +1,14 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+    <Target Name="CopyCImgui" BeforeTargets="PreBuildEvent">
+        <PropertyGroup>
+            <!--<CImguiLib>deps/cimgui.dll</CImguiLib>-->
+            <CppSharpLib>deps/CppSharp.Runtime.dll</CppSharpLib>
+            <OutputPath>$(RELOADEDIIMODS)/p4rpc.trip2.debugui</OutputPath>
+        </PropertyGroup>
+        <ItemGroup>
+            <CImGui Include="deps/cimgui.*"/>
+        </ItemGroup>
+        <Copy SourceFiles="@(CImGui)" DestinationFolder="$(OutputPath)"/>
+        <Copy SourceFiles="$(CppSharpLib)" DestinationFolder="$(OutputPath)"/>
+    </Target>
+</Project>

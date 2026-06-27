@@ -28,7 +28,7 @@
     <Import Project="Reloaded.Trimming.targets"/>
     <Import Project="Reloaded.Checks.targets"/>
     <Import Project="trip2.BuildRust.targets"/>
-
+    
     <ItemGroup>
         <None Remove="ModConfig.json"/>
         <None Remove="Publish.ps1"/>
@@ -52,13 +52,14 @@
     <ItemGroup>
         <PackageReference Include="Reloaded.Mod.Interfaces" Version="2.4.0" ExcludeAssets="runtime"/>
         <PackageReference Include="Reloaded.SharedLib.Hooks" Version="1.9.0"/>
-        <PackageReference Include="riri.yamlscans.ReloadedII" Version="1.0.0" />
+        <PackageReference Include="riri.yamlscans.ReloadedII" Version="1.1.1" />
         <PackageReference Include="RyoTune.Reloaded" Version="4.2.1" />
         <PackageReference Include="SharedScans.Interfaces" Version="1.2.0" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\p4rpc.trip2.debugui.Interfaces\p4rpc.trip2.debugui.Interfaces.csproj" />
+      <ProjectReference Include="..\p4rpc.trip2.ImGui\p4rpc.trip2.ImGui.csproj" Aliases="imgui" />
     </ItemGroup>
 
 </Project>

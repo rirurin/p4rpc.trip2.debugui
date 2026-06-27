@@ -10,7 +10,7 @@
   "ModR2RManagedDll64": "x64/p4rpc.trip2.debugui.dll",
   "ModNativeDll32": "",
   "ModNativeDll64": "",
-  "IsLibrary": false,
+  "IsLibrary": true,
   "ReleaseMetadataFileName": "p4rpc.trip2.debugui.ReleaseMetadata.json",
   "PluginData": {
     "GitHubDependencies": {
@@ -64,6 +64,15 @@
   "OptionalDependencies": [],
   "SupportedAppId": [
     "Chronos-Win64-Shipping.exe",
+    "Game-Win64-Shipping.exe",
+    "IOStoreTest_50-Win64-Shipping.exe",
+    "IOStoreTest_51-Win64-Shipping.exe",
+    "IOStoreTest_52-Win64-Shipping.exe",
+    "IOStoreTest_53-Win64-Shipping.exe",
+    "IOStoreTest_54-Win64-Shipping.exe",
+    "IOStoreTest_55-Win64-Shipping.exe",
+    "IOStoreTest_56-Win64-Shipping.exe",
+    "IOStoreTest_57-Win64-Shipping.exe",
     "p3r.exe",
     "p4r.exe",
     "Sandfall-Win64-Shipping.exe"

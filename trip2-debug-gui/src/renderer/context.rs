@@ -151,15 +151,3 @@ impl VulkanContext {
         Ok(())
     }
 }
-
-pub struct AcquireSwapchainImageResult2 {
-    pub image_index: usize,
-    pub suboptimal: bool,
-    pub future: SwapchainAcquireFuture
-}
-
-impl AcquireSwapchainImageResult2 {
-    pub(crate) fn new(image_index: usize, suboptimal: bool, acquire_future: SwapchainAcquireFuture) -> Self {
-        Self { image_index, suboptimal, future: acquire_future }
-    }
-}

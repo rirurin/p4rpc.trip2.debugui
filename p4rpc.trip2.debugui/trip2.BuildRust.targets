@@ -1,9 +1,10 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
     
-    <Target Name="BuildRust" BeforeTargets="Build">
+    <Target Name="BuildRust" BeforeTargets="PreBuildEvent">
         <PropertyGroup>
             <RustProjectPath>$(MSBuildProjectDirectory)/../$(RustProject)</RustProjectPath>
             <RustTargetDirectory>$(RustProjectPath)/target/$(RustTarget)/debug</RustTargetDirectory>
+            <ImThemes>$(MSBuildProjectDirectory)/../include/ImThemes/themes.toml</ImThemes>
         </PropertyGroup>
         <ItemGroup>
             <RustBuildOutput Include="$(RustTargetDirectory)/*.dll;$(RustTargetDirectory)/*.dll.*;$(RustTargetDirectory)/*.pdb;"/>
@@ -14,5 +15,6 @@
         <Copy SourceFiles="@(RustBuildOutput)" DestinationFolder="$(OutputPath)"/>
         <Copy SourceFiles="@(Trip2GuiFonts)" DestinationFolder="$(OutputPath)/data"/>
         <Copy SourceFiles="@(Trip2GuiShaders)" DestinationFolder="$(OutputPath)/shaders"/>
+        <Copy SourceFiles="$(ImThemes)" DestinationFolder="$(OutputPath)/data"/>
     </Target>
 </Project>

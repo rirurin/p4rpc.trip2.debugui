@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <Authors>Rirurin</Authors>
+        <Description>C# Wrapper for Dear ImGui library (docking branch) with internal API exposed and support for Win32 + Vulkan. Based on DearImguiSharp: https://github.com/sewer56/DearImguiSharp</Description>
+        <Version>1.91.3</Version>
+        <PackageProjectUrl>https://github.com/rirurin/p4rpc.trip2.debugui</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/rirurin/p4rpc.trip2.debugui</RepositoryUrl>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <Content Include="deps\cimgui.dll">
+            <PackagePath>runtimes/win-x64/native</PackagePath>
+            <Pack>true</Pack>
+        </Content>
+        <Content Include="deps\CppSharp.Runtime.dll">
+            <Pack>true</Pack>
+            <PackagePath>lib/netcoreapp3.1</PackagePath>
+        </Content>
+        <Content Include="deps\CppSharp.Runtime.dll">
+            <Pack>true</Pack>
+            <PackagePath>lib/net5.0</PackagePath>
+        </Content>
+    </ItemGroup>
+
+    <Import Project="p4rpc.trip2.ImGui.targets"/>
+
+    <ItemGroup>
+        <Reference Include="CppSharp.Runtime">
+            <HintPath>deps\CppSharp.Runtime.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+</Project>
