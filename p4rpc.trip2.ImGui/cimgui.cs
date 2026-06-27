@@ -7640,11 +7640,11 @@ namespace p4rpc.trip2.ImGui
             }
         }
 
-        public ushort* Data
+        public uint* Data
         {
             get
             {
-                return (ushort*) ((__Internal*)__Instance)->Data;
+                return (uint*) ((__Internal*)__Instance)->Data;
             }
 
             set
@@ -9373,7 +9373,7 @@ namespace p4rpc.trip2.ImGui
             public int EventFlag;
             public int Flags;
             public __IntPtr UserData;
-            public ushort EventChar;
+            public uint EventChar;
             public global::p4rpc.trip2.ImGui.ImGuiKey EventKey;
             public __IntPtr Buf;
             public int BufTextLen;
@@ -9541,7 +9541,7 @@ namespace p4rpc.trip2.ImGui
             }
         }
 
-        public ushort EventChar
+        public uint EventChar
         {
             get
             {
@@ -15569,7 +15569,7 @@ namespace p4rpc.trip2.ImGui
             public uint FontBuilderFlags;
             public float RasterizerMultiply;
             public float RasterizerDensity;
-            public ushort EllipsisChar;
+            public uint EllipsisChar;
             public fixed sbyte Name[40];
             public __IntPtr DstFont;
 
@@ -15812,11 +15812,11 @@ namespace p4rpc.trip2.ImGui
             }
         }
 
-        public ushort* GlyphRanges
+        public uint* GlyphRanges
         {
             get
             {
-                return (ushort*) ((__Internal*)__Instance)->GlyphRanges;
+                return (uint*) ((__Internal*)__Instance)->GlyphRanges;
             }
         }
 
@@ -15898,7 +15898,7 @@ namespace p4rpc.trip2.ImGui
             }
         }
 
-        public ushort EllipsisChar
+        public uint EllipsisChar
         {
             get
             {
@@ -17971,7 +17971,7 @@ namespace p4rpc.trip2.ImGui
 
     public unsafe partial class ImFont : IDisposable
     {
-        [StructLayout(LayoutKind.Sequential, Size = 120)]
+        [StructLayout(LayoutKind.Sequential, Size = 160)]
         public partial struct __Internal
         {
             public global::p4rpc.trip2.ImGui.ImVector_float.__Internal IndexAdvanceX;
@@ -17983,8 +17983,8 @@ namespace p4rpc.trip2.ImGui
             public __IntPtr ContainerAtlas;
             public __IntPtr ConfigData;
             public short ConfigDataCount;
-            public ushort FallbackChar;
-            public ushort EllipsisChar;
+            public uint FallbackChar;
+            public uint EllipsisChar;
             public short EllipsisCharCount;
             public float EllipsisWidth;
             public float EllipsisCharStep;
@@ -17993,7 +17993,7 @@ namespace p4rpc.trip2.ImGui
             public float Ascent;
             public float Descent;
             public int MetricsTotalSurface;
-            public fixed byte Used4kPagesMap[2];
+            public fixed byte Used4kPagesMap[34];
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "??0ImFont@@QEAA@AEBU0@@Z", CallingConvention = __CallingConvention.Cdecl)]
             public static extern __IntPtr cctor(__IntPtr __instance, __IntPtr _0);
@@ -18216,7 +18216,7 @@ namespace p4rpc.trip2.ImGui
             }
         }
 
-        public ushort FallbackChar
+        public uint FallbackChar
         {
             get
             {
@@ -18229,7 +18229,7 @@ namespace p4rpc.trip2.ImGui
             }
         }
 
-        public ushort EllipsisChar
+        public uint EllipsisChar
         {
             get
             {
@@ -18350,14 +18350,14 @@ namespace p4rpc.trip2.ImGui
         {
             get
             {
-                return CppSharp.Runtime.MarshalUtil.GetArray<byte>(((__Internal*)__Instance)->Used4kPagesMap, 2);
+                return CppSharp.Runtime.MarshalUtil.GetArray<byte>(((__Internal*)__Instance)->Used4kPagesMap, 34);
             }
 
             set
             {
                 if (value != null)
                 {
-                    for (int i = 0; i < 2; i++)
+                    for (int i = 0; i < 34; i++)
                         ((__Internal*)__Instance)->Used4kPagesMap[i] = value[i];
                 }
             }
@@ -19046,7 +19046,7 @@ namespace p4rpc.trip2.ImGui
             public __IntPtr Platform_OpenInShellUserData;
             public __IntPtr Platform_SetImeDataFn;
             public __IntPtr Platform_ImeUserData;
-            public ushort Platform_LocaleDecimalPoint;
+            public uint Platform_LocaleDecimalPoint;
             public __IntPtr Platform_CreateWindow;
             public __IntPtr Platform_DestroyWindow;
             public __IntPtr Platform_ShowWindow;
@@ -19274,7 +19274,7 @@ namespace p4rpc.trip2.ImGui
             }
         }
 
-        public ushort PlatformLocaleDecimalPoint
+        public uint PlatformLocaleDecimalPoint
         {
             get
             {
@@ -38761,7 +38761,7 @@ namespace p4rpc.trip2.ImGui
 
     public unsafe partial class ImGuiContext : IDisposable
     {
-        [StructLayout(LayoutKind.Sequential, Size = 11008)]
+        [StructLayout(LayoutKind.Sequential, Size = 11048)]
         public partial struct __Internal
         {
             public byte Initialized;
@@ -54351,13 +54351,13 @@ namespace p4rpc.trip2.ImGui
             public static extern void ImFontGlyphRangesBuilderSetBit(__IntPtr self, IntPtr n);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontGlyphRangesBuilder_AddChar", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern void ImFontGlyphRangesBuilderAddChar(__IntPtr self, ushort c);
+            public static extern void ImFontGlyphRangesBuilderAddChar(__IntPtr self, uint c);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontGlyphRangesBuilder_AddText", CallingConvention = __CallingConvention.Cdecl)]
             public static extern void ImFontGlyphRangesBuilderAddText(__IntPtr self, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string text, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string text_end);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontGlyphRangesBuilder_AddRanges", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern void ImFontGlyphRangesBuilderAddRanges(__IntPtr self, ushort* ranges);
+            public static extern void ImFontGlyphRangesBuilderAddRanges(__IntPtr self, uint* ranges);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontGlyphRangesBuilder_BuildRanges", CallingConvention = __CallingConvention.Cdecl)]
             public static extern void ImFontGlyphRangesBuilderBuildRanges(__IntPtr self, __IntPtr out_ranges);
@@ -54385,16 +54385,16 @@ namespace p4rpc.trip2.ImGui
             public static extern __IntPtr ImFontAtlasAddFontDefault(__IntPtr self, __IntPtr font_cfg);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontAtlas_AddFontFromFileTTF", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern __IntPtr ImFontAtlasAddFontFromFileTTF(__IntPtr self, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string filename, float size_pixels, __IntPtr font_cfg, ushort* glyph_ranges);
+            public static extern __IntPtr ImFontAtlasAddFontFromFileTTF(__IntPtr self, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string filename, float size_pixels, __IntPtr font_cfg, uint* glyph_ranges);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontAtlas_AddFontFromMemoryTTF", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern __IntPtr ImFontAtlasAddFontFromMemoryTTF(__IntPtr self, __IntPtr font_data, int font_data_size, float size_pixels, __IntPtr font_cfg, ushort* glyph_ranges);
+            public static extern __IntPtr ImFontAtlasAddFontFromMemoryTTF(__IntPtr self, __IntPtr font_data, int font_data_size, float size_pixels, __IntPtr font_cfg, uint* glyph_ranges);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontAtlas_AddFontFromMemoryCompressedTTF", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern __IntPtr ImFontAtlasAddFontFromMemoryCompressedTTF(__IntPtr self, __IntPtr compressed_font_data, int compressed_font_data_size, float size_pixels, __IntPtr font_cfg, ushort* glyph_ranges);
+            public static extern __IntPtr ImFontAtlasAddFontFromMemoryCompressedTTF(__IntPtr self, __IntPtr compressed_font_data, int compressed_font_data_size, float size_pixels, __IntPtr font_cfg, uint* glyph_ranges);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontAtlas_AddFontFromMemoryCompressedBase85TTF", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern __IntPtr ImFontAtlasAddFontFromMemoryCompressedBase85TTF(__IntPtr self, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string compressed_font_data_base85, float size_pixels, __IntPtr font_cfg, ushort* glyph_ranges);
+            public static extern __IntPtr ImFontAtlasAddFontFromMemoryCompressedBase85TTF(__IntPtr self, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string compressed_font_data_base85, float size_pixels, __IntPtr font_cfg, uint* glyph_ranges);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontAtlas_ClearInputData", CallingConvention = __CallingConvention.Cdecl)]
             public static extern void ImFontAtlasClearInputData(__IntPtr self);
@@ -54426,37 +54426,37 @@ namespace p4rpc.trip2.ImGui
             public static extern void ImFontAtlasSetTexID(__IntPtr self, __IntPtr id);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontAtlas_GetGlyphRangesDefault", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern ushort* ImFontAtlasGetGlyphRangesDefault(__IntPtr self);
+            public static extern uint* ImFontAtlasGetGlyphRangesDefault(__IntPtr self);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontAtlas_GetGlyphRangesGreek", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern ushort* ImFontAtlasGetGlyphRangesGreek(__IntPtr self);
+            public static extern uint* ImFontAtlasGetGlyphRangesGreek(__IntPtr self);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontAtlas_GetGlyphRangesKorean", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern ushort* ImFontAtlasGetGlyphRangesKorean(__IntPtr self);
+            public static extern uint* ImFontAtlasGetGlyphRangesKorean(__IntPtr self);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontAtlas_GetGlyphRangesJapanese", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern ushort* ImFontAtlasGetGlyphRangesJapanese(__IntPtr self);
+            public static extern uint* ImFontAtlasGetGlyphRangesJapanese(__IntPtr self);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontAtlas_GetGlyphRangesChineseFull", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern ushort* ImFontAtlasGetGlyphRangesChineseFull(__IntPtr self);
+            public static extern uint* ImFontAtlasGetGlyphRangesChineseFull(__IntPtr self);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontAtlas_GetGlyphRangesChineseSimplifiedCommon", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern ushort* ImFontAtlasGetGlyphRangesChineseSimplifiedCommon(__IntPtr self);
+            public static extern uint* ImFontAtlasGetGlyphRangesChineseSimplifiedCommon(__IntPtr self);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontAtlas_GetGlyphRangesCyrillic", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern ushort* ImFontAtlasGetGlyphRangesCyrillic(__IntPtr self);
+            public static extern uint* ImFontAtlasGetGlyphRangesCyrillic(__IntPtr self);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontAtlas_GetGlyphRangesThai", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern ushort* ImFontAtlasGetGlyphRangesThai(__IntPtr self);
+            public static extern uint* ImFontAtlasGetGlyphRangesThai(__IntPtr self);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontAtlas_GetGlyphRangesVietnamese", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern ushort* ImFontAtlasGetGlyphRangesVietnamese(__IntPtr self);
+            public static extern uint* ImFontAtlasGetGlyphRangesVietnamese(__IntPtr self);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontAtlas_AddCustomRectRegular", CallingConvention = __CallingConvention.Cdecl)]
             public static extern int ImFontAtlasAddCustomRectRegular(__IntPtr self, int width, int height);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontAtlas_AddCustomRectFontGlyph", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern int ImFontAtlasAddCustomRectFontGlyph(__IntPtr self, __IntPtr font, ushort id, int width, int height, float advance_x, global::p4rpc.trip2.ImGui.ImVec2.__Internal offset);
+            public static extern int ImFontAtlasAddCustomRectFontGlyph(__IntPtr self, __IntPtr font, uint id, int width, int height, float advance_x, global::p4rpc.trip2.ImGui.ImVec2.__Internal offset);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFontAtlas_GetCustomRectByIndex", CallingConvention = __CallingConvention.Cdecl)]
             public static extern __IntPtr ImFontAtlasGetCustomRectByIndex(__IntPtr self, int index);
@@ -54475,13 +54475,13 @@ namespace p4rpc.trip2.ImGui
             public static extern void ImFont_destroy(__IntPtr self);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFont_FindGlyph", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern __IntPtr ImFontFindGlyph(__IntPtr self, ushort c);
+            public static extern __IntPtr ImFontFindGlyph(__IntPtr self, uint c);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFont_FindGlyphNoFallback", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern __IntPtr ImFontFindGlyphNoFallback(__IntPtr self, ushort c);
+            public static extern __IntPtr ImFontFindGlyphNoFallback(__IntPtr self, uint c);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFont_GetCharAdvance", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern float ImFontGetCharAdvance(__IntPtr self, ushort c);
+            public static extern float ImFontGetCharAdvance(__IntPtr self, uint c);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFont_IsLoaded", CallingConvention = __CallingConvention.Cdecl)]
             [return: MarshalAs(UnmanagedType.I1)]
@@ -54497,7 +54497,7 @@ namespace p4rpc.trip2.ImGui
             public static extern __IntPtr ImFontCalcWordWrapPositionA(__IntPtr self, float scale, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string text, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string text_end, float wrap_width);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFont_RenderChar", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern void ImFontRenderChar(__IntPtr self, __IntPtr draw_list, float size, global::p4rpc.trip2.ImGui.ImVec2.__Internal pos, uint col, ushort c);
+            public static extern void ImFontRenderChar(__IntPtr self, __IntPtr draw_list, float size, global::p4rpc.trip2.ImGui.ImVec2.__Internal pos, uint col, uint c);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFont_RenderText", CallingConvention = __CallingConvention.Cdecl)]
             public static extern void ImFontRenderText(__IntPtr self, __IntPtr draw_list, float size, global::p4rpc.trip2.ImGui.ImVec2.__Internal pos, uint col, global::p4rpc.trip2.ImGui.ImVec4.__Internal clip_rect, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string text_begin, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string text_end, float wrap_width, bool cpu_fine_clip);
@@ -54512,13 +54512,13 @@ namespace p4rpc.trip2.ImGui
             public static extern void ImFontGrowIndex(__IntPtr self, int new_size);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFont_AddGlyph", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern void ImFontAddGlyph(__IntPtr self, __IntPtr src_cfg, ushort c, float x0, float y0, float x1, float y1, float u0, float v0, float u1, float v1, float advance_x);
+            public static extern void ImFontAddGlyph(__IntPtr self, __IntPtr src_cfg, uint c, float x0, float y0, float x1, float y1, float u0, float v0, float u1, float v1, float advance_x);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFont_AddRemapChar", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern void ImFontAddRemapChar(__IntPtr self, ushort dst, ushort src, bool overwrite_dst);
+            public static extern void ImFontAddRemapChar(__IntPtr self, uint dst, uint src, bool overwrite_dst);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFont_SetGlyphVisible", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern void ImFontSetGlyphVisible(__IntPtr self, ushort c, bool visible);
+            public static extern void ImFontSetGlyphVisible(__IntPtr self, uint c, bool visible);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "ImFont_IsGlyphRangeUnused", CallingConvention = __CallingConvention.Cdecl)]
             [return: MarshalAs(UnmanagedType.I1)]
@@ -54608,7 +54608,7 @@ namespace p4rpc.trip2.ImGui
             public static extern __IntPtr ImStrSkipBlank([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string str);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "igImStrlenW", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern int ImStrlenW(ushort* str);
+            public static extern int ImStrlenW(uint* str);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "igImStrbol", CallingConvention = __CallingConvention.Cdecl)]
             public static extern __IntPtr ImStrbol([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string buf_mid_line, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string buf_begin);
@@ -54656,13 +54656,13 @@ namespace p4rpc.trip2.ImGui
             public static extern __IntPtr ImTextCharToUtf8(sbyte[] out_buf, uint c);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "igImTextStrToUtf8", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern int ImTextStrToUtf8(sbyte* out_buf, int out_buf_size, ushort* in_text, ushort* in_text_end);
+            public static extern int ImTextStrToUtf8(sbyte* out_buf, int out_buf_size, uint* in_text, uint* in_text_end);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "igImTextCharFromUtf8", CallingConvention = __CallingConvention.Cdecl)]
             public static extern int ImTextCharFromUtf8(uint* out_char, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string in_text, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string in_text_end);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "igImTextStrFromUtf8", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern int ImTextStrFromUtf8(ushort* out_buf, int out_buf_size, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string in_text, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string in_text_end, sbyte** in_remaining);
+            public static extern int ImTextStrFromUtf8(uint* out_buf, int out_buf_size, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string in_text, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string in_text_end, sbyte** in_remaining);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "igImTextCountCharsFromUtf8", CallingConvention = __CallingConvention.Cdecl)]
             public static extern int ImTextCountCharsFromUtf8([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string in_text, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string in_text_end);
@@ -54671,7 +54671,7 @@ namespace p4rpc.trip2.ImGui
             public static extern int ImTextCountUtf8BytesFromChar([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string in_text, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string in_text_end);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "igImTextCountUtf8BytesFromStr", CallingConvention = __CallingConvention.Cdecl)]
-            public static extern int ImTextCountUtf8BytesFromStr(ushort* in_text, ushort* in_text_end);
+            public static extern int ImTextCountUtf8BytesFromStr(uint* in_text, uint* in_text_end);
 
             [SuppressUnmanagedCodeSecurity, DllImport("cimgui", EntryPoint = "igImTextFindPreviousUtf8Codepoint", CallingConvention = __CallingConvention.Cdecl)]
             public static extern __IntPtr ImTextFindPreviousUtf8Codepoint([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string in_text_start, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string in_text_curr);
@@ -61156,7 +61156,7 @@ namespace p4rpc.trip2.ImGui
             __Internal.ImFontGlyphRangesBuilderSetBit(__arg0, n);
         }
 
-        public static void ImFontGlyphRangesBuilderAddChar(global::p4rpc.trip2.ImGui.ImFontGlyphRangesBuilder self, ushort c)
+        public static void ImFontGlyphRangesBuilderAddChar(global::p4rpc.trip2.ImGui.ImFontGlyphRangesBuilder self, uint c)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             __Internal.ImFontGlyphRangesBuilderAddChar(__arg0, c);
@@ -61168,10 +61168,10 @@ namespace p4rpc.trip2.ImGui
             __Internal.ImFontGlyphRangesBuilderAddText(__arg0, text, text_end);
         }
 
-        public static void ImFontGlyphRangesBuilderAddRanges(global::p4rpc.trip2.ImGui.ImFontGlyphRangesBuilder self, ref ushort ranges)
+        public static void ImFontGlyphRangesBuilderAddRanges(global::p4rpc.trip2.ImGui.ImFontGlyphRangesBuilder self, ref uint ranges)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
-            fixed (ushort* __ranges1 = &ranges)
+            fixed (uint* __ranges1 = &ranges)
             {
                 var __arg1 = __ranges1;
                 __Internal.ImFontGlyphRangesBuilderAddRanges(__arg0, __arg1);
@@ -61236,11 +61236,11 @@ namespace p4rpc.trip2.ImGui
             return __result0;
         }
 
-        public static global::p4rpc.trip2.ImGui.ImFont ImFontAtlasAddFontFromFileTTF(global::p4rpc.trip2.ImGui.ImFontAtlas self, string filename, float size_pixels, global::p4rpc.trip2.ImGui.ImFontConfig font_cfg, ref ushort glyph_ranges)
+        public static global::p4rpc.trip2.ImGui.ImFont ImFontAtlasAddFontFromFileTTF(global::p4rpc.trip2.ImGui.ImFontAtlas self, string filename, float size_pixels, global::p4rpc.trip2.ImGui.ImFontConfig font_cfg, ref uint glyph_ranges)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             var __arg3 = font_cfg is null ? __IntPtr.Zero : font_cfg.__Instance;
-            fixed (ushort* __glyph_ranges4 = &glyph_ranges)
+            fixed (uint* __glyph_ranges4 = &glyph_ranges)
             {
                 var __arg4 = __glyph_ranges4;
                 var __ret = __Internal.ImFontAtlasAddFontFromFileTTF(__arg0, filename, size_pixels, __arg3, __arg4);
@@ -61249,11 +61249,11 @@ namespace p4rpc.trip2.ImGui
             }
         }
 
-        public static global::p4rpc.trip2.ImGui.ImFont ImFontAtlasAddFontFromMemoryTTF(global::p4rpc.trip2.ImGui.ImFontAtlas self, __IntPtr font_data, int font_data_size, float size_pixels, global::p4rpc.trip2.ImGui.ImFontConfig font_cfg, ref ushort glyph_ranges)
+        public static global::p4rpc.trip2.ImGui.ImFont ImFontAtlasAddFontFromMemoryTTF(global::p4rpc.trip2.ImGui.ImFontAtlas self, __IntPtr font_data, int font_data_size, float size_pixels, global::p4rpc.trip2.ImGui.ImFontConfig font_cfg, ref uint glyph_ranges)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             var __arg4 = font_cfg is null ? __IntPtr.Zero : font_cfg.__Instance;
-            fixed (ushort* __glyph_ranges5 = &glyph_ranges)
+            fixed (uint* __glyph_ranges5 = &glyph_ranges)
             {
                 var __arg5 = __glyph_ranges5;
                 var __ret = __Internal.ImFontAtlasAddFontFromMemoryTTF(__arg0, font_data, font_data_size, size_pixels, __arg4, __arg5);
@@ -61262,11 +61262,11 @@ namespace p4rpc.trip2.ImGui
             }
         }
 
-        public static global::p4rpc.trip2.ImGui.ImFont ImFontAtlasAddFontFromMemoryCompressedTTF(global::p4rpc.trip2.ImGui.ImFontAtlas self, __IntPtr compressed_font_data, int compressed_font_data_size, float size_pixels, global::p4rpc.trip2.ImGui.ImFontConfig font_cfg, ref ushort glyph_ranges)
+        public static global::p4rpc.trip2.ImGui.ImFont ImFontAtlasAddFontFromMemoryCompressedTTF(global::p4rpc.trip2.ImGui.ImFontAtlas self, __IntPtr compressed_font_data, int compressed_font_data_size, float size_pixels, global::p4rpc.trip2.ImGui.ImFontConfig font_cfg, ref uint glyph_ranges)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             var __arg4 = font_cfg is null ? __IntPtr.Zero : font_cfg.__Instance;
-            fixed (ushort* __glyph_ranges5 = &glyph_ranges)
+            fixed (uint* __glyph_ranges5 = &glyph_ranges)
             {
                 var __arg5 = __glyph_ranges5;
                 var __ret = __Internal.ImFontAtlasAddFontFromMemoryCompressedTTF(__arg0, compressed_font_data, compressed_font_data_size, size_pixels, __arg4, __arg5);
@@ -61275,11 +61275,11 @@ namespace p4rpc.trip2.ImGui
             }
         }
 
-        public static global::p4rpc.trip2.ImGui.ImFont ImFontAtlasAddFontFromMemoryCompressedBase85TTF(global::p4rpc.trip2.ImGui.ImFontAtlas self, string compressed_font_data_base85, float size_pixels, global::p4rpc.trip2.ImGui.ImFontConfig font_cfg, ref ushort glyph_ranges)
+        public static global::p4rpc.trip2.ImGui.ImFont ImFontAtlasAddFontFromMemoryCompressedBase85TTF(global::p4rpc.trip2.ImGui.ImFontAtlas self, string compressed_font_data_base85, float size_pixels, global::p4rpc.trip2.ImGui.ImFontConfig font_cfg, ref uint glyph_ranges)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             var __arg3 = font_cfg is null ? __IntPtr.Zero : font_cfg.__Instance;
-            fixed (ushort* __glyph_ranges4 = &glyph_ranges)
+            fixed (uint* __glyph_ranges4 = &glyph_ranges)
             {
                 var __arg4 = __glyph_ranges4;
                 var __ret = __Internal.ImFontAtlasAddFontFromMemoryCompressedBase85TTF(__arg0, compressed_font_data_base85, size_pixels, __arg3, __arg4);
@@ -61368,63 +61368,63 @@ namespace p4rpc.trip2.ImGui
             __Internal.ImFontAtlasSetTexID(__arg0, id);
         }
 
-        public static ushort* ImFontAtlasGetGlyphRangesDefault(global::p4rpc.trip2.ImGui.ImFontAtlas self)
+        public static uint* ImFontAtlasGetGlyphRangesDefault(global::p4rpc.trip2.ImGui.ImFontAtlas self)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             var __ret = __Internal.ImFontAtlasGetGlyphRangesDefault(__arg0);
             return __ret;
         }
 
-        public static ushort* ImFontAtlasGetGlyphRangesGreek(global::p4rpc.trip2.ImGui.ImFontAtlas self)
+        public static uint* ImFontAtlasGetGlyphRangesGreek(global::p4rpc.trip2.ImGui.ImFontAtlas self)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             var __ret = __Internal.ImFontAtlasGetGlyphRangesGreek(__arg0);
             return __ret;
         }
 
-        public static ushort* ImFontAtlasGetGlyphRangesKorean(global::p4rpc.trip2.ImGui.ImFontAtlas self)
+        public static uint* ImFontAtlasGetGlyphRangesKorean(global::p4rpc.trip2.ImGui.ImFontAtlas self)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             var __ret = __Internal.ImFontAtlasGetGlyphRangesKorean(__arg0);
             return __ret;
         }
 
-        public static ushort* ImFontAtlasGetGlyphRangesJapanese(global::p4rpc.trip2.ImGui.ImFontAtlas self)
+        public static uint* ImFontAtlasGetGlyphRangesJapanese(global::p4rpc.trip2.ImGui.ImFontAtlas self)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             var __ret = __Internal.ImFontAtlasGetGlyphRangesJapanese(__arg0);
             return __ret;
         }
 
-        public static ushort* ImFontAtlasGetGlyphRangesChineseFull(global::p4rpc.trip2.ImGui.ImFontAtlas self)
+        public static uint* ImFontAtlasGetGlyphRangesChineseFull(global::p4rpc.trip2.ImGui.ImFontAtlas self)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             var __ret = __Internal.ImFontAtlasGetGlyphRangesChineseFull(__arg0);
             return __ret;
         }
 
-        public static ushort* ImFontAtlasGetGlyphRangesChineseSimplifiedCommon(global::p4rpc.trip2.ImGui.ImFontAtlas self)
+        public static uint* ImFontAtlasGetGlyphRangesChineseSimplifiedCommon(global::p4rpc.trip2.ImGui.ImFontAtlas self)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             var __ret = __Internal.ImFontAtlasGetGlyphRangesChineseSimplifiedCommon(__arg0);
             return __ret;
         }
 
-        public static ushort* ImFontAtlasGetGlyphRangesCyrillic(global::p4rpc.trip2.ImGui.ImFontAtlas self)
+        public static uint* ImFontAtlasGetGlyphRangesCyrillic(global::p4rpc.trip2.ImGui.ImFontAtlas self)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             var __ret = __Internal.ImFontAtlasGetGlyphRangesCyrillic(__arg0);
             return __ret;
         }
 
-        public static ushort* ImFontAtlasGetGlyphRangesThai(global::p4rpc.trip2.ImGui.ImFontAtlas self)
+        public static uint* ImFontAtlasGetGlyphRangesThai(global::p4rpc.trip2.ImGui.ImFontAtlas self)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             var __ret = __Internal.ImFontAtlasGetGlyphRangesThai(__arg0);
             return __ret;
         }
 
-        public static ushort* ImFontAtlasGetGlyphRangesVietnamese(global::p4rpc.trip2.ImGui.ImFontAtlas self)
+        public static uint* ImFontAtlasGetGlyphRangesVietnamese(global::p4rpc.trip2.ImGui.ImFontAtlas self)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             var __ret = __Internal.ImFontAtlasGetGlyphRangesVietnamese(__arg0);
@@ -61438,7 +61438,7 @@ namespace p4rpc.trip2.ImGui
             return __ret;
         }
 
-        public static int ImFontAtlasAddCustomRectFontGlyph(global::p4rpc.trip2.ImGui.ImFontAtlas self, global::p4rpc.trip2.ImGui.ImFont font, ushort id, int width, int height, float advance_x, global::p4rpc.trip2.ImGui.ImVec2 offset)
+        public static int ImFontAtlasAddCustomRectFontGlyph(global::p4rpc.trip2.ImGui.ImFontAtlas self, global::p4rpc.trip2.ImGui.ImFont font, uint id, int width, int height, float advance_x, global::p4rpc.trip2.ImGui.ImVec2 offset)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             var __arg1 = font is null ? __IntPtr.Zero : font.__Instance;
@@ -61518,7 +61518,7 @@ namespace p4rpc.trip2.ImGui
             __Internal.ImFont_destroy(__arg0);
         }
 
-        public static global::p4rpc.trip2.ImGui.ImFontGlyph ImFontFindGlyph(global::p4rpc.trip2.ImGui.ImFont self, ushort c)
+        public static global::p4rpc.trip2.ImGui.ImFontGlyph ImFontFindGlyph(global::p4rpc.trip2.ImGui.ImFont self, uint c)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             var __ret = __Internal.ImFontFindGlyph(__arg0, c);
@@ -61526,7 +61526,7 @@ namespace p4rpc.trip2.ImGui
             return __result0;
         }
 
-        public static global::p4rpc.trip2.ImGui.ImFontGlyph ImFontFindGlyphNoFallback(global::p4rpc.trip2.ImGui.ImFont self, ushort c)
+        public static global::p4rpc.trip2.ImGui.ImFontGlyph ImFontFindGlyphNoFallback(global::p4rpc.trip2.ImGui.ImFont self, uint c)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             var __ret = __Internal.ImFontFindGlyphNoFallback(__arg0, c);
@@ -61534,7 +61534,7 @@ namespace p4rpc.trip2.ImGui
             return __result0;
         }
 
-        public static float ImFontGetCharAdvance(global::p4rpc.trip2.ImGui.ImFont self, ushort c)
+        public static float ImFontGetCharAdvance(global::p4rpc.trip2.ImGui.ImFont self, uint c)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             var __ret = __Internal.ImFontGetCharAdvance(__arg0, c);
@@ -61569,7 +61569,7 @@ namespace p4rpc.trip2.ImGui
             return CppSharp.Runtime.MarshalUtil.GetString(global::System.Text.Encoding.UTF8, __ret);
         }
 
-        public static void ImFontRenderChar(global::p4rpc.trip2.ImGui.ImFont self, global::p4rpc.trip2.ImGui.ImDrawList draw_list, float size, global::p4rpc.trip2.ImGui.ImVec2 pos, uint col, ushort c)
+        public static void ImFontRenderChar(global::p4rpc.trip2.ImGui.ImFont self, global::p4rpc.trip2.ImGui.ImDrawList draw_list, float size, global::p4rpc.trip2.ImGui.ImVec2 pos, uint col, uint c)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             var __arg1 = draw_list is null ? __IntPtr.Zero : draw_list.__Instance;
@@ -61610,20 +61610,20 @@ namespace p4rpc.trip2.ImGui
             __Internal.ImFontGrowIndex(__arg0, new_size);
         }
 
-        public static void ImFontAddGlyph(global::p4rpc.trip2.ImGui.ImFont self, global::p4rpc.trip2.ImGui.ImFontConfig src_cfg, ushort c, float x0, float y0, float x1, float y1, float u0, float v0, float u1, float v1, float advance_x)
+        public static void ImFontAddGlyph(global::p4rpc.trip2.ImGui.ImFont self, global::p4rpc.trip2.ImGui.ImFontConfig src_cfg, uint c, float x0, float y0, float x1, float y1, float u0, float v0, float u1, float v1, float advance_x)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             var __arg1 = src_cfg is null ? __IntPtr.Zero : src_cfg.__Instance;
             __Internal.ImFontAddGlyph(__arg0, __arg1, c, x0, y0, x1, y1, u0, v0, u1, v1, advance_x);
         }
 
-        public static void ImFontAddRemapChar(global::p4rpc.trip2.ImGui.ImFont self, ushort dst, ushort src, bool overwrite_dst)
+        public static void ImFontAddRemapChar(global::p4rpc.trip2.ImGui.ImFont self, uint dst, uint src, bool overwrite_dst)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             __Internal.ImFontAddRemapChar(__arg0, dst, src, overwrite_dst);
         }
 
-        public static void ImFontSetGlyphVisible(global::p4rpc.trip2.ImGui.ImFont self, ushort c, bool visible)
+        public static void ImFontSetGlyphVisible(global::p4rpc.trip2.ImGui.ImFont self, uint c, bool visible)
         {
             var __arg0 = self is null ? __IntPtr.Zero : self.__Instance;
             __Internal.ImFontSetGlyphVisible(__arg0, c, visible);
@@ -61806,9 +61806,9 @@ namespace p4rpc.trip2.ImGui
             return CppSharp.Runtime.MarshalUtil.GetString(global::System.Text.Encoding.UTF8, __ret);
         }
 
-        public static int ImStrlenW(ref ushort str)
+        public static int ImStrlenW(ref uint str)
         {
-            fixed (ushort* __str0 = &str)
+            fixed (uint* __str0 = &str)
             {
                 var __arg0 = __str0;
                 var __ret = __Internal.ImStrlenW(__arg0);
@@ -61900,12 +61900,12 @@ namespace p4rpc.trip2.ImGui
             return CppSharp.Runtime.MarshalUtil.GetString(global::System.Text.Encoding.UTF8, __ret);
         }
 
-        public static int ImTextStrToUtf8(sbyte* out_buf, int out_buf_size, ref ushort in_text, ref ushort in_text_end)
+        public static int ImTextStrToUtf8(sbyte* out_buf, int out_buf_size, ref uint in_text, ref uint in_text_end)
         {
-            fixed (ushort* __in_text2 = &in_text)
+            fixed (uint* __in_text2 = &in_text)
             {
                 var __arg2 = __in_text2;
-                fixed (ushort* __in_text_end3 = &in_text_end)
+                fixed (uint* __in_text_end3 = &in_text_end)
                 {
                     var __arg3 = __in_text_end3;
                     var __ret = __Internal.ImTextStrToUtf8(out_buf, out_buf_size, __arg2, __arg3);
@@ -61924,9 +61924,9 @@ namespace p4rpc.trip2.ImGui
             }
         }
 
-        public static int ImTextStrFromUtf8(ref ushort out_buf, int out_buf_size, string in_text, string in_text_end, sbyte** in_remaining)
+        public static int ImTextStrFromUtf8(ref uint out_buf, int out_buf_size, string in_text, string in_text_end, sbyte** in_remaining)
         {
-            fixed (ushort* __out_buf0 = &out_buf)
+            fixed (uint* __out_buf0 = &out_buf)
             {
                 var __arg0 = __out_buf0;
                 var __ret = __Internal.ImTextStrFromUtf8(__arg0, out_buf_size, in_text, in_text_end, in_remaining);
@@ -61946,12 +61946,12 @@ namespace p4rpc.trip2.ImGui
             return __ret;
         }
 
-        public static int ImTextCountUtf8BytesFromStr(ref ushort in_text, ref ushort in_text_end)
+        public static int ImTextCountUtf8BytesFromStr(ref uint in_text, ref uint in_text_end)
         {
-            fixed (ushort* __in_text0 = &in_text)
+            fixed (uint* __in_text0 = &in_text)
             {
                 var __arg0 = __in_text0;
-                fixed (ushort* __in_text_end1 = &in_text_end)
+                fixed (uint* __in_text_end1 = &in_text_end)
                 {
                     var __arg1 = __in_text_end1;
                     var __ret = __Internal.ImTextCountUtf8BytesFromStr(__arg0, __arg1);

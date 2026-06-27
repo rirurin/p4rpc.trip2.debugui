@@ -13,3 +13,6 @@ riderModule.iml
 # Rust
 **/target/*
 Cargo.lock
+
+# Build output
+*.pdb

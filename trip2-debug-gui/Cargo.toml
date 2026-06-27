@@ -45,7 +45,3 @@ use_compiler = ["dep:riri-imgui-vulkano-shaders", "dep:shaderc", "riri-imgui-vul
 
 [profile.dev]
 panic = "immediate-abort"
-
-# [patch."https://github.com/rirurin/imgui-rs"]
-# imgui = { path = "../../../PersonaMultiplayer/imgui-rs/imgui" }
-# imgui-sys = { path = "../../../PersonaMultiplayer/imgui-rs/imgui-sys" }
