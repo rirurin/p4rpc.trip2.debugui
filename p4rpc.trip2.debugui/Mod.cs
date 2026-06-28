@@ -6,6 +6,7 @@ using p4rpc.trip2.debugui.Interfaces;
 using riri.yamlscans.ReloadedII;
 using RyoTune.Reloaded;
 using SharedScans.Interfaces;
+using UnrealEssentials.Interfaces;
 
 namespace p4rpc.trip2.debugui;
 
@@ -34,9 +35,10 @@ public class Mod : ModBase, IExports
         Project.Initialize(_modConfig, _modLoader, _logger, false);
         Log.LogLevel = _configuration.LogLevel;
         YamlScans.Initialize(_modConfig, _modLoader);
-        Trip2DebugGui.Initialize(_modLoader, _modConfig);
 
-        _context = new(_modLoader, _hooks!, _modConfig, YamlScans.GetDependency<ISharedScans>());
+        _context = new(_modLoader, _hooks!, _modConfig, YamlScans.GetDependency<ISharedScans>(),
+            YamlScans.GetDependency<IUnrealEssentials>());
+        Trip2DebugGui.Initialize(_context);
         _guiState = new();
         _modLoader.AddOrReplaceController<IGUIState>(_owner, _guiState);
         _tick = new(_context, _guiState);

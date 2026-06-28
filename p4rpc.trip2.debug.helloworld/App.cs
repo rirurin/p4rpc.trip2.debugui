@@ -5,17 +5,25 @@ using p4rpc.trip2.debugui.Interfaces;
 
 namespace p4rpc.trip2.debug.helloworld;
 
-public class App : IGUIApp
+public class App : GUIApp 
 {
-    public string Name => "Hello App";
-    public List<IGUIWindow> Windows { get; } = [];
+    public override string Name => "Hello App";
     public float CountTotal;
     public float CountMult = 1;
-    public void Tick(float DeltaTime)
+    public override void Tick(float DeltaTime)
     {
         CountTotal += DeltaTime * CountMult;
-        if (Windows.Count == 0)
-            Windows.Add(new AppWindow(this));
+    }
+
+    public App()
+    {
+        var OpenWindow = () =>
+        {
+            if (Windows.Count == 0)
+                Windows.Add(new AppWindow(this));
+        };
+        OpenWindow();
+        Buttons.Add("Open Window", OpenWindow);
     }
 }
 

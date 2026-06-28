@@ -1,16 +1,18 @@
 ﻿using Reloaded.Hooks.Definitions;
 using Reloaded.Mod.Interfaces;
 using SharedScans.Interfaces;
-using UnrealEssentials.Interfaces;
+using UE.Toolkit.Core.Types.Unreal.Factories;
+using UE.Toolkit.Interfaces;
 
-namespace p4rpc.trip2.debugui;
+namespace p4rpc.trip2.debug.uobjectviewer;
 
 public class Context(IModLoader modLoader, IReloadedHooks hooks, IModConfig modConfig, ISharedScans sharedScans, 
-    IUnrealEssentials unrealEssentials)
+    IUnrealObjects unrealObjects, IUnrealFactory unrealFactory)
 {
     internal IModLoader ModLoader { get; init; } = modLoader;
     internal IReloadedHooks Hooks { get; init; } = hooks;
     internal IModConfig ModConfig { get; init; } = modConfig;
     internal ISharedScans SharedScans { get; init; } = sharedScans;
-    internal IUnrealEssentials UnrealEssentials { get; init; } = unrealEssentials;
+    internal IUnrealObjects UnrealObjects { get; init; } = unrealObjects;
+    internal IUnrealFactory UnrealFactory { get; init; } = unrealFactory;
 }

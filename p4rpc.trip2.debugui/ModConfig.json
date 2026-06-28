@@ -50,6 +50,15 @@
             "AssetFileName": "Mod.zip"
           },
           "ReleaseMetadataName": "SharedScans.Reloaded.ReleaseMetadata.json"
+        },
+        "UnrealEssentials": {
+          "Config": {
+            "UserName": "AnimatedSwine37",
+            "RepositoryName": "UnrealEssentials",
+            "UseReleaseTag": false,
+            "AssetFileName": "Mod.zip"
+          },
+          "ReleaseMetadataName": "UnrealEssentials.ReleaseMetadata.json"
         }
       }
     }
@@ -59,23 +68,24 @@
     "Reloaded.Memory.SigScan.ReloadedII",
     "reloaded.sharedlib.hooks",
     "riri.modruntime",
-    "SharedScans.Reloaded"
+    "SharedScans.Reloaded",
+    "UnrealEssentials"
   ],
   "OptionalDependencies": [],
   "SupportedAppId": [
-    "Chronos-Win64-Shipping.exe",
-    "Game-Win64-Shipping.exe",
-    "IOStoreTest_50-Win64-Shipping.exe",
-    "IOStoreTest_51-Win64-Shipping.exe",
-    "IOStoreTest_52-Win64-Shipping.exe",
-    "IOStoreTest_53-Win64-Shipping.exe",
-    "IOStoreTest_54-Win64-Shipping.exe",
-    "IOStoreTest_55-Win64-Shipping.exe",
-    "IOStoreTest_56-Win64-Shipping.exe",
-    "IOStoreTest_57-Win64-Shipping.exe",
+    "chronos-win64-shipping.exe",
+    "game-win64-shipping.exe",
+    "iostoretest_50-win64-shipping.exe",
+    "iostoretest_51-win64-shipping.exe",
+    "iostoretest_52-win64-shipping.exe",
+    "iostoretest_53-win64-shipping.exe",
+    "iostoretest_54-win64-shipping.exe",
+    "iostoretest_55-win64-shipping.exe",
+    "iostoretest_56-win64-shipping.exe",
+    "iostoretest_57-win64-shipping.exe",
     "p3r.exe",
     "p4r.exe",
-    "Sandfall-Win64-Shipping.exe"
+    "sandfall-win64-shipping.exe"
   ],
   "ProjectUrl": ""
 }

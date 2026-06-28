@@ -11,14 +11,12 @@ namespace p4rpc.trip2.debug.reloadedconsole;
 
 // Adds a window that prints the output of the Reloaded-II console into the Debug UI
 // Adapted from Metaphor Multiplayer
-public class Logging : IGUIApp
+public class Logging : GUIApp 
 {
-    public string Name { get; } = "Reloaded-II Console";
-    public List<IGUIWindow> Windows { get; } = [];
+    public override string Name { get; } = "Reloaded-II Console";
     public List<string> ReloadedConsole { get; } = [];
     public int LineCount { get; set; } = 32;
     private ILogger Logger;
-    internal IGUIState State { get; init; }
 
     public Logging(ILogger logger, IGUIState state)
     {
@@ -38,7 +36,7 @@ public class Logging : IGUIApp
         };
         Windows.Add(new LoggingWindow(this));
     }
-    public void Tick(float DeltaTime) {}
+    public override void Tick(float DeltaTime) {}
 }
 
 public class LoggingWindow(Logging owner) : GUIWindow<Logging>(owner)
@@ -50,7 +48,7 @@ public class LoggingWindow(Logging owner) : GUIWindow<Logging>(owner)
         get
         {
             if (!Owner.TryGetTarget(out var App)) return Vector2.Zero;
-            var SurfaceSize = App.State.GetSurfaceSize();
+            var SurfaceSize = App.State!.GetSurfaceSize();
             return new Vector2(SurfaceSize.X / 2, SurfaceSize.Y * 3 / 4);
         }
     }
@@ -60,8 +58,8 @@ public class LoggingWindow(Logging owner) : GUIWindow<Logging>(owner)
         get
         {
             if (!Owner.TryGetTarget(out var App)) return Vector2.Zero;
-            var SurfaceSize = App.State.GetSurfaceSize();
-            return new Vector2(SurfaceSize.X / 2 - 30, 15);
+            var SurfaceSize = App.State!.GetSurfaceSize();
+            return new Vector2(SurfaceSize.X / 2 - 30, 30);
         }
     }
 

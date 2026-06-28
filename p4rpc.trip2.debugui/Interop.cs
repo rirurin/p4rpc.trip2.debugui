@@ -5,7 +5,6 @@ using ImGui = imgui::p4rpc.trip2.ImGui.ImGui;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using p4rpc.trip2.debugui.Interfaces;
-using Reloaded.Mod.Interfaces;
 using RyoTune.Reloaded;
 
 namespace p4rpc.trip2.debugui;
@@ -26,12 +25,35 @@ public unsafe struct Array<T> where T : unmanaged
 }
 
 [StructLayout(LayoutKind.Sequential)]
-public struct WindowState(nint title, long hash, Vector2 size, Vector2 position)
+public struct WindowState(nint title, ulong hash, Vector2 size, Vector2 position, bool canClose)
 {
     public nint Title = title;
-    public long Hash = hash;
+    public ulong Hash = hash;
     public Vector2 Size = size;
     public Vector2 Position = position;
+    public bool CanClose = canClose;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+public struct AppState(nint name, uint hash)
+{
+    public nint Name = name;
+    public uint Hash = hash;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+public struct ButtonState(nint name, ulong hash)
+{
+    public nint Name = name;
+    public ulong Hash = hash;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+public struct InteropState
+{
+    public Array<WindowState> Windows;
+    public Array<AppState> Apps;
+    public Array<ButtonState> Buttons;
 }
 
 public static unsafe class Trip2DebugGui
@@ -39,11 +61,11 @@ public static unsafe class Trip2DebugGui
     const string __DllName = "trip2_debug_gui";
 
     private static string? Namespace;
-    private static IModLoader? _modLoader;
-    private static IModConfig? _modConfig;
+    private static Context? _context;
 
-    internal static Dictionary<long, IGUIWindow> Windows { get; } = new();
-    internal static Dictionary<int, IGUIApp> Apps { get; } = new();
+    internal static Dictionary<uint, IGUIApp> Apps { get; } = new();
+    internal static Dictionary<ulong, Action> Buttons { get; } = new();
+    internal static Dictionary<ulong, IGUIWindow> Windows { get; } = new();
     
     // Mod functions
         
@@ -58,21 +80,30 @@ public static unsafe class Trip2DebugGui
     
     [DllImport(__DllName, EntryPoint = "get_deltatime", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
     internal static extern float get_deltatime();
-    
-    [DllImport(__DllName, EntryPoint = "set_window_states", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
-    internal static extern void set_window_states(Array<WindowState>* entries);
 
     [DllImport(__DllName, EntryPoint = "set_draw_window", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
-    internal static extern void set_draw_window(delegate* unmanaged[Stdcall]<long, void> callback);
+    internal static extern void set_draw_window(delegate* unmanaged[Stdcall]<ulong, void> callback);
     
     [DllImport(__DllName, EntryPoint = "get_surface_size", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
     internal static extern Vector2 get_surface_size();
     
     [DllImport(__DllName, EntryPoint = "set_get_window_initial_size", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
-    internal static extern void set_get_window_initial_size(delegate* unmanaged[Stdcall]<long, Vector2> callback);
+    internal static extern void set_get_window_initial_size(delegate* unmanaged[Stdcall]<ulong, Vector2> callback);
     
     [DllImport(__DllName, EntryPoint = "set_get_window_initial_pos", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
-    internal static extern void set_get_window_initial_pos(delegate* unmanaged[Stdcall]<long, Vector2> callback);
+    internal static extern void set_get_window_initial_pos(delegate* unmanaged[Stdcall]<ulong, Vector2> callback);
+    
+    [DllImport(__DllName, EntryPoint = "set_remove_window", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+    internal static extern void set_remove_window(delegate* unmanaged[Stdcall]<ulong, void> callback);
+    
+    [DllImport(__DllName, EntryPoint = "set_get_branch_version", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+    internal static extern nint set_get_branch_version(delegate* unmanaged[Stdcall]<nint> offset);
+    
+    [DllImport(__DllName, EntryPoint = "set_interop_state", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+    internal static extern void set_interop_state(InteropState* state);
+    
+    [DllImport(__DllName, EntryPoint = "set_button_action", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+    internal static extern void set_button_action(delegate* unmanaged[Stdcall]<ulong, void> callback);
     
     // riri-mod-tools functions
     
@@ -115,7 +146,7 @@ public static unsafe class Trip2DebugGui
     [UnmanagedCallersOnly(CallConvs = [ typeof(CallConvStdcall) ])]
     public static unsafe nint GetDirectoryForMod()
     {
-        var ModDirectory = _modLoader!.GetDirectoryForModId(_modConfig!.ModId);
+        var ModDirectory = _context!.ModLoader.GetDirectoryForModId(_context!.ModConfig.ModId);
         return Marshal.StringToHGlobalUni(ModDirectory);
     }
     
@@ -130,24 +161,46 @@ public static unsafe class Trip2DebugGui
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
-    public static void DrawWindow(long windowHash)
+    public static void DrawWindow(ulong windowHash)
     {
         if (Windows.TryGetValue(windowHash, out var Window))
             Window.DrawContents();
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
-    public static Vector2 GetWindowInitialSize(long windowHash)
+    public static Vector2 GetWindowInitialSize(ulong windowHash)
          => Windows.TryGetValue(windowHash, out var Window) ? Window.StartSize : Vector2.Zero;
     
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
-    public static Vector2 GetWindowInitialPos(long windowHash)
+    public static Vector2 GetWindowInitialPos(ulong windowHash)
         => Windows.TryGetValue(windowHash, out var Window) ? Window.StartPos : Vector2.Zero;
 
-    internal static void Initialize(IModLoader modLoader, IModConfig modConfig)
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
+    public static void RemoveWindow(ulong windowHash)
     {
-        _modLoader = modLoader;
-        _modConfig = modConfig;
+        if (!Windows.TryGetValue(windowHash, out var Window))
+        {
+            Log.Warning($"Could not remove window 0x{windowHash:x} - Window object was not found");
+            return;
+        }
+        if (!Window.Close())
+            Log.Warning($"Could not close window {Window.Title}");
+    }
+    
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
+    public static nint GetBranchVersion()
+        => Marshal.StringToHGlobalUni(_context!.UnrealEssentials.GetEngineVersion());
+
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
+    public static void ButtonAction(ulong hash)
+    {
+        if (!Buttons.TryGetValue(hash, out var Action)) return;
+        Action();
+    }
+
+    internal static void Initialize(Context context)
+    {
+        _context = context;
         Namespace = typeof(Trip2DebugGui).Namespace;
         set_current_process();
         set_reloaded_logger(&ReloadedLoggerWrite);
@@ -158,6 +211,9 @@ public static unsafe class Trip2DebugGui
         set_draw_window(&DrawWindow);
         set_get_window_initial_size(&GetWindowInitialSize);
         set_get_window_initial_pos(&GetWindowInitialPos);
+        set_remove_window(&RemoveWindow);
+        set_get_branch_version(&GetBranchVersion);
+        set_button_action(&ButtonAction);
     }
 }
 

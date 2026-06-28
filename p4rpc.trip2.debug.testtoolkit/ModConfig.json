@@ -1,17 +1,17 @@
 {
-  "ModId": "p4rpc.trip2.debug.helloworld",
-  "ModName": "[trip2] Debug UI - Hello World",
+  "ModId": "p4rpc.trip2.debug.testtoolkit",
+  "ModName": "[trip2] Debug UI - UE Toolkit Tests",
   "ModAuthor": "Rirurin",
   "ModVersion": "0.1.0",
-  "ModDescription": "Sample Window",
-  "ModDll": "p4rpc.trip2.debug.helloworld.dll",
+  "ModDescription": "Unit tests for UE Toolkit",
+  "ModDll": "p4rpc.trip2.debug.testtoolkit.dll",
   "ModIcon": "Preview.png",
-  "ModR2RManagedDll32": "x86/p4rpc.trip2.debug.helloworld.dll",
-  "ModR2RManagedDll64": "x64/p4rpc.trip2.debug.helloworld.dll",
+  "ModR2RManagedDll32": "x86/p4rpc.trip2.debug.testtoolkit.dll",
+  "ModR2RManagedDll64": "x64/p4rpc.trip2.debug.testtoolkit.dll",
   "ModNativeDll32": "",
   "ModNativeDll64": "",
   "IsLibrary": false,
-  "ReleaseMetadataFileName": "p4rpc.trip2.debug.helloworld.ReleaseMetadata.json",
+  "ReleaseMetadataFileName": "p4rpc.trip2.debug.testtoolkit.ReleaseMetadata.json",
   "PluginData": {
     "GitHubDependencies": {
       "IdToConfigMap": {

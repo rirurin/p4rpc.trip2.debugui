@@ -1,14 +1,9 @@
 ﻿using Reloaded.Hooks.ReloadedII.Interfaces;
 using Reloaded.Mod.Interfaces;
-using p4rpc.trip2.debug.uobjectviewer.Template;
-using p4rpc.trip2.debug.uobjectviewer.Configuration;
-using riri.yamlscans.ReloadedII;
-using RyoTune.Reloaded;
-using SharedScans.Interfaces;
-using UE.Toolkit.Core.Types.Unreal.Factories;
-using UE.Toolkit.Interfaces;
+using p4rpc.trip2.debug.testtoolkit.Template;
+using p4rpc.trip2.debug.testtoolkit.Configuration;
 
-namespace p4rpc.trip2.debug.uobjectviewer;
+namespace p4rpc.trip2.debug.testtoolkit;
 
 public class Mod : ModBase
 {
@@ -19,8 +14,6 @@ public class Mod : ModBase
     private Config _configuration;
     private readonly IModConfig _modConfig;
 
-    private Context _context;
-
     public Mod(ModContext context)
     {
         _modLoader = context.ModLoader;
@@ -29,18 +22,6 @@ public class Mod : ModBase
         _owner = context.Owner;
         _configuration = context.Configuration;
         _modConfig = context.ModConfig;
-        
-        Project.Initialize(_modConfig, _modLoader, _logger, false);
-        Log.LogLevel = _configuration.LogLevel;
-        YamlScans.Initialize(_modConfig, _modLoader);
-        var sharedScans = YamlScans.GetDependency<ISharedScans>();
-        var unrealObjects = YamlScans.GetDependency<IUnrealObjects>();
-        var unrealFactory = YamlScans.GetDependency<IUnrealFactory>();
-        _context = new(_modLoader, _hooks!, _modConfig, sharedScans, unrealObjects, unrealFactory);
-        unrealObjects.OnObjectLoaded += (uobject) =>
-        {
-            unsafe { Log.Debug($"New object created: {(nint)uobject.Self:x}"); }
-        };
     }
 
     #region Standard Overrides

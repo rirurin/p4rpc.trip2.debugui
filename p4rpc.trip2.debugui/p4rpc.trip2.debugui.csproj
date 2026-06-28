@@ -58,6 +58,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\UnrealEssentials\UnrealEssentials.Interfaces\UnrealEssentials.Interfaces.csproj" />
       <ProjectReference Include="..\p4rpc.trip2.debugui.Interfaces\p4rpc.trip2.debugui.Interfaces.csproj" />
       <ProjectReference Include="..\p4rpc.trip2.ImGui\p4rpc.trip2.ImGui.csproj" Aliases="imgui" />
     </ItemGroup>

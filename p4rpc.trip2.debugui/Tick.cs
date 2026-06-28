@@ -17,35 +17,62 @@ public class Tick
 
     private void NewFrameActive()
     {
-        Array<WindowState> WindowStates;
+        InteropState Interop;
         List<WindowState> WindowStatesList = [];
+        List<AppState> AppStatesList = [];
+        List<ButtonState> ButtonStatesList = [];
+        
         foreach (var App in GuiState.Programs.Values)
         {
-            var AppHash = App.Name.GetHashCode();
+            var AppHash = (uint)App.Name.GetHashCode();
             Trip2DebugGui.Apps.Add(AppHash, App);
+            AppStatesList.Add(new AppState(
+                Marshal.StringToHGlobalUni(App.Name), AppHash));
+            foreach (var (Name, Action) in App.Buttons)
+            {
+                var ButtonHash = ((ulong)AppHash << 0x20) | (uint)Name.GetHashCode();
+                Trip2DebugGui.Buttons.Add(ButtonHash, Action);
+                ButtonStatesList.Add(new ButtonState(
+                    Marshal.StringToHGlobalUni(Name), ButtonHash));
+            }
             foreach (var Window in App.Windows)
             {
-                var WindowHash = ((long)AppHash << 0x20) | Window.Title.GetHashCode();
+                var WindowHash = ((ulong)AppHash << 0x20) | (uint)Window.Title.GetHashCode();
                 Trip2DebugGui.Windows.Add(WindowHash, Window);
                 WindowStatesList.Add(new WindowState(
                     Marshal.StringToHGlobalUni(Window.Title), 
                     WindowHash, 
                     Window.StartSize, 
-                    Window.StartPos
+                    Window.StartPos,
+                    Window.CanClose
                     ));
             }
         }
-        var WindowStatesArray = WindowStatesList.ToArray();
         unsafe
         {
-            fixed (WindowState* pWindowStatesArray = WindowStatesArray)
+            fixed (WindowState* pWindowStatesArray = WindowStatesList.ToArray())
             {
-                WindowStates.Entries = pWindowStatesArray;
-                WindowStates.Length = WindowStatesArray.Length;
-                Trip2DebugGui.set_window_states(&WindowStates);
-                Trip2DebugGui.new_frame_ui();
-                Trip2DebugGui.Windows.Clear();
-                Trip2DebugGui.Apps.Clear();
+                fixed (AppState* pAppStatesArray = AppStatesList.ToArray())
+                {
+                    fixed (ButtonState* pButtonStatesArray = ButtonStatesList.ToArray())
+                    {
+                        Interop.Windows.Entries = pWindowStatesArray;
+                        Interop.Windows.Length = WindowStatesList.Count;
+
+                        Interop.Apps.Entries = pAppStatesArray;
+                        Interop.Apps.Length = AppStatesList.Count;
+                        
+                        Interop.Buttons.Entries = pButtonStatesArray;
+                        Interop.Buttons.Length = ButtonStatesList.Count;
+                        
+                        Trip2DebugGui.set_interop_state(&Interop);
+                        Trip2DebugGui.new_frame_ui();
+                    
+                        Trip2DebugGui.Windows.Clear();
+                        Trip2DebugGui.Apps.Clear();
+                        Trip2DebugGui.Buttons.Clear();   
+                    }
+                }
             }   
         }
         var dt = Trip2DebugGui.get_deltatime();

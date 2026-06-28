@@ -8,7 +8,7 @@ use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
 use gilrs_imgui_support::state::{GamepadBuilder, GamepadState};
 use glam::{UVec2, Vec2};
-use imgui::{BackendFlags, Condition, ConfigFlags, Context as ImContext, FontGlyphRanges, FontId, ImColor32};
+use imgui::{BackendFlags, Condition, ConfigFlags, Context as ImContext, FontGlyphRanges, FontId, ImColor32, Ui};
 use imgui::internal::RawWrapper;
 use imgui_winit_support::{HiDpiMode, WinitPlatform};
 use riri_imgui_vulkano::context::RendererContext;
@@ -39,6 +39,7 @@ pub struct Gui {
     fonts: HashMap<String, FontId>,
     themes: ThemeRegistry,
 
+    window_name: String,
     gamepad: GamepadState,
     last_frame: Instant,
     time_elapsed: f32,
@@ -163,9 +164,20 @@ impl GuiThread {
             loop {
                 GuiState::ensure_running();
                 EventState::tick();
+
+                /*
                 let mut windows = WINDOW_STATES.lock().unwrap();
                 *windows = WindowStatePointer::null();
                 drop(windows);
+                let mut apps = APP_STATES.lock().unwrap();
+                *apps = AppStatePointer::null();
+                drop(apps);
+                */
+
+                let mut interop = INTEROP_STATE.lock().unwrap();
+                *interop = InteropStatePointer::null();
+                drop(interop);
+
                 *SYNC_VALUE.lock().unwrap() = false;
                 SYNC_SIGNAL.notify_all();
                 std::thread::park();
@@ -186,7 +198,7 @@ const PROGRAM_ICON_UE5: usize = 0x7b;
 
 impl Gui {
     pub fn get_name(&self) -> &str {
-        "trip2 Debug GUI"
+        &self.window_name
     }
 
     pub fn get_window(&self) -> Arc<Box<dyn Window>> {
@@ -220,6 +232,7 @@ impl Gui {
             renderer: None,
             fonts: HashMap::new(),
             themes: ThemeRegistry::default(),
+            window_name: String::new(),
             gamepad: GamepadBuilder::new()
                 .set_axis_to_btn(0.5, 0.4)
                 // Invert the inverse_y setting to account for flipped y axis clip space.
@@ -265,10 +278,81 @@ impl Gui {
                 Some(LPARAM(main_icon.0 as isize)));
         }
     }
+
+    fn draw_ui(
+        ui: &mut Ui,
+        fonts: &HashMap<String, FontId>,
+        themes: &ThemeRegistry,
+        window: Arc<Box<dyn Window>>
+    ) -> Option<String> {
+        let mut style_to_apply = None;
+        let external_lock = INTEROP_STATE.lock().unwrap();
+        let external = external_lock.0
+            .map(|v| unsafe { v.as_ref() });
+        if let Some(main) = ui.begin_main_menu_bar() {
+            if let Some(_menu) = ui.begin_menu_with_enabled("Apps", true) {
+                if let Some(external) = external {
+                    Self::main_menu_draw_apps(ui, external);
+                }
+            }
+            if let Some(_menu) = ui.begin_menu_with_enabled("Themes", true) {
+                for theme in themes.iter() {
+                    if ui.menu_item(&theme.name) {
+                        style_to_apply = Some(theme.name.clone());
+                    }
+                }
+            }
+        }
+        if let Some(external) = external {
+            for win_state in &external.windows {
+                let name: String = (&win_state.title).into();
+                let window = ui.window(name);
+                let window = match unsafe { get_window_initial_size(win_state.hash) } {
+                    Vec2::ZERO => window, v => window.size([v.x, v.y], Condition::FirstUseEver)
+                };
+                let window = match unsafe { get_window_initial_pos(win_state.hash) } {
+                    Vec2::ZERO => window, v => window.position([v.x, v.y], Condition::FirstUseEver)
+                };
+                let mut opened = true;
+                let window = match win_state.can_close {
+                    false => window, true => window.opened(&mut opened)
+                };
+                window.build(|| unsafe { draw_window(win_state.hash) });
+                if !opened {
+                    unsafe { remove_window(win_state.hash) };
+                }
+            }
+        }
+        drop(external_lock);
+        AppDebugInfo::new(&fonts, ui, window.clone()).draw();
+        style_to_apply
+    }
+
+    fn main_menu_draw_apps(ui: &Ui, external: &InteropState) {
+        for app in &external.apps {
+            let app_name: String = (&app.title).into();
+            let buttons: Vec<_> = (&external.buttons).into_iter()
+                .filter(|btn| (btn.hash >> 0x20) as u32 == app.hash).collect();
+            if buttons.len() > 0 {
+                if let Some(app_menu) = ui.begin_menu_with_enabled(app_name, true) {
+                    for button in buttons {
+                        let btn_name: String = (&button.name).into();
+                        if ui.menu_item(btn_name) {
+                            unsafe { button_action(button.hash) };
+                        }
+                    }
+                }
+            } else {
+                ui.menu_item(app_name);
+            }
+        }
+    }
 }
 
 impl ApplicationHandler for Gui {
     fn can_create_surfaces(&mut self, event_loop: &dyn ActiveEventLoop) {
+        let branch_version: String = unsafe { get_branch_version().into() };
+        self.window_name = format!("trip2 Debug GUI ({})", branch_version);
         let attr = WindowAttributes::default()
             .with_visible(false)
             .with_title(self.get_name())
@@ -330,36 +414,7 @@ impl ApplicationHandler for Gui {
                 *SURFACE_SIZE.lock().unwrap() = Vec2::from_array(window.as_ref().surface_size().into());
                 // Start draw UI
                 let ui = imgui.new_frame();
-                let windows = WINDOW_STATES.lock().unwrap();
-                if let Some(main) = ui.begin_main_menu_bar() {
-                    if let Some(_menu) = ui.begin_menu_with_enabled("Menu", true) {
-                        if let Some(_menu) = ui.begin_menu_with_enabled("Themes", true) {
-                            for theme in self.themes.iter() {
-                                if ui.menu_item(&theme.name) {
-                                    style_to_apply = Some(theme.name.clone());
-                                }
-                            }
-                        }
-                    }
-                }
-                if let Some(windows) = windows.0 {
-                    let windows = unsafe { windows.as_ref() };
-                    for i in 0..windows.length {
-                        let win_state = &windows[i];
-                        let name: String = (&win_state.title).into();
-                        let window = ui.window(name);
-                        let window = match unsafe { get_window_initial_size(win_state.hash) } {
-                            Vec2::ZERO => window, v => window.size([v.x, v.y], Condition::FirstUseEver)
-                        };
-                        let window = match unsafe { get_window_initial_pos(win_state.hash) } {
-                            Vec2::ZERO => window, v => window.position([v.x, v.y], Condition::FirstUseEver)
-                        };
-                        window.build(|| unsafe { draw_window(win_state.hash) });
-                    }
-                }
-                drop(windows);
-                AppDebugInfo::new(&self.fonts, ui, window.clone()).draw();
-
+                style_to_apply = Self::draw_ui(ui, &self.fonts, &self.themes, window.clone());
                 let draw_data = imgui.render();
                 let clear_color = ColorConverter::hsv_to_rgb(
                     (self.count as f32 / 300.) % 1., 0.25, 0.3);
@@ -380,7 +435,6 @@ impl ApplicationHandler for Gui {
                 renderer.refresh(window.clone()).unwrap();
             },
             v => {
-                // logln!(Debug, "Unhandled window event: {:?}", v);
                 let io = imgui.io_mut();
                 platform.handle_window_event(io, window.as_ref().as_ref(), &v)
             }
@@ -468,40 +522,80 @@ pub unsafe extern "C" fn get_deltatime() -> f32 {
         .delta_time
 }
 
-type WindowStatePointerInner = Option<NonNull<Array<WindowState>>>;
-
 #[repr(C)]
-pub struct WindowStatePointer(WindowStatePointerInner);
+pub struct InteropState {
+    windows: Array<WindowState>,
+    apps: Array<AppState>,
+    buttons: Array<ButtonState>,
+}
 
-impl Deref for WindowStatePointer {
-    type Target = WindowStatePointerInner;
+unsafe impl Send for InteropState {}
+unsafe impl Sync for InteropState {}
+
+type InteropStatePointerInner = Option<NonNull<InteropState>>;
+
+impl Deref for InteropStatePointer {
+    type Target = InteropStatePointerInner;
 
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl DerefMut for WindowStatePointer {
+impl DerefMut for InteropStatePointer {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
 }
 
-unsafe impl Send for WindowStatePointer {}
-unsafe impl Sync for WindowStatePointer {}
+unsafe impl Send for InteropStatePointer {}
+unsafe impl Sync for InteropStatePointer {}
 
-impl WindowStatePointer {
+impl InteropStatePointer {
     pub const fn null() -> Self {
         Self(None)
     }
 }
 
-pub static WINDOW_STATES: Mutex<WindowStatePointer> = Mutex::new(WindowStatePointer::null());
+pub static INTEROP_STATE: Mutex<InteropStatePointer> = Mutex::new(InteropStatePointer::null());
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn set_window_states(entries: WindowStatePointer) {
-    *WINDOW_STATES.lock().unwrap() = entries;
+pub unsafe extern "C" fn set_interop_state(entries: InteropStatePointer) {
+    *INTEROP_STATE.lock().unwrap() = entries;
 }
+
+#[repr(C)]
+pub struct InteropStatePointer(InteropStatePointerInner);
+
+#[repr(C)]
+pub struct WindowState {
+    title: CSharpString,
+    hash: u64,
+    size: Vec2,
+    position: Vec2,
+    can_close: bool,
+}
+
+unsafe impl Send for WindowState {}
+unsafe impl Sync for WindowState {}
+
+#[repr(C)]
+pub struct AppState {
+    title: CSharpString,
+    hash: u32,
+}
+
+unsafe impl Send for AppState {}
+unsafe impl Sync for AppState {}
+
+#[repr(C)]
+pub struct ButtonState {
+    name: CSharpString,
+    hash: u64,
+}
+
+unsafe impl Send for ButtonState {}
+unsafe impl Sync for ButtonState {}
 
 #[repr(C)]
 pub struct Array<T> where T: Send + Sync {
@@ -536,16 +630,35 @@ impl<T: Send + Sync> Drop for Array<T> {
     }
 }
 
-#[repr(C)]
-pub struct WindowState {
-    title: CSharpString,
-    hash: u64,
-    size: Vec2,
-    position: Vec2,
+impl<'a, T: Send + Sync> IntoIterator for &'a Array<T> {
+    type Item = &'a T;
+    type IntoIter = ArrayIterator<'a, T>;
+    fn into_iter(self) -> Self::IntoIter {
+        Self::IntoIter {
+            inner: self,
+            current: 0
+        }
+    }
 }
 
-unsafe impl Send for WindowState {}
-unsafe impl Sync for WindowState {}
+pub struct ArrayIterator<'a, T: Send + Sync> {
+    inner: &'a Array<T>,
+    current: usize
+}
+
+impl<'a, T: Send + Sync + 'a> Iterator for ArrayIterator<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let out = if self.current < self.inner.length {
+            Some(unsafe { &*self.inner.entries.add(self.current) })
+        } else {
+            None
+        };
+        self.current += 1;
+        out
+    }
+}
 
 type DrawWindowFn = unsafe extern "C" fn(u64);
 
@@ -592,4 +705,46 @@ pub unsafe extern "C" fn set_get_window_initial_pos(cb: GetWindowInitialPosFn) {
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn get_window_initial_pos(id: u64) -> Vec2 {
     unsafe { GET_WINDOW_INITIAL_POS.get().unwrap()(id) }
+}
+
+type RemoveWindowFn = unsafe extern "C" fn(u64);
+
+pub static REMOVE_WINDOW: OnceLock<RemoveWindowFn> = OnceLock::new();
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn set_remove_window(cb: RemoveWindowFn) {
+    REMOVE_WINDOW.set(cb).unwrap();
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn remove_window(id: u64) {
+    unsafe { REMOVE_WINDOW.get().unwrap()(id) };
+}
+
+type GetBranchVersionFn = unsafe extern "C" fn() -> CSharpString;
+
+pub static GET_BRANCH_VERSION: OnceLock<GetBranchVersionFn> = OnceLock::new();
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn set_get_branch_version(cb: GetBranchVersionFn) {
+    GET_BRANCH_VERSION.set(cb).unwrap();
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn get_branch_version() -> CSharpString {
+    unsafe { GET_BRANCH_VERSION.get().unwrap()() }
+}
+
+type ButtonActionFn = unsafe extern "C" fn(u64);
+
+pub static BUTTON_ACTION: OnceLock<ButtonActionFn> = OnceLock::new();
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn set_button_action(cb: ButtonActionFn) {
+    BUTTON_ACTION.set(cb).unwrap();
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn button_action(hash: u64) {
+    unsafe { BUTTON_ACTION.get().unwrap()(hash) };
 }
