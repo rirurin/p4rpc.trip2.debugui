@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::mem::offset_of;
 use std::ops::{Deref, DerefMut, Index};
 use std::path::PathBuf;
 use std::ptr::NonNull;
@@ -8,14 +7,13 @@ use std::sync::{Arc, Condvar, Mutex, OnceLock};
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
 use gilrs_imgui_support::state::{GamepadBuilder, GamepadState};
-use glam::Vec2;
-use imgui::{BackendFlags, ConfigFlags, Context as ImContext, FontGlyphRanges, FontId, ImColor32};
+use glam::{UVec2, Vec2};
+use imgui::{BackendFlags, Condition, ConfigFlags, Context as ImContext, FontGlyphRanges, FontId, ImColor32};
 use imgui::internal::RawWrapper;
 use imgui_winit_support::{HiDpiMode, WinitPlatform};
 use riri_imgui_vulkano::context::RendererContext;
 use riri_inspector_components::clipboard::ClipboardSupport;
 use riri_mod_tools_rt::address::ProcessInfo;
-use riri_mod_tools_rt::logln;
 use riri_mod_tools_rt::mod_loader_data::{get_directory_for_mod, CSharpString};
 use vulkano::format::ClearValue;
 use windows::core::PCWSTR;
@@ -165,6 +163,9 @@ impl GuiThread {
             loop {
                 GuiState::ensure_running();
                 EventState::tick();
+                let mut windows = WINDOW_STATES.lock().unwrap();
+                *windows = WindowStatePointer::null();
+                drop(windows);
                 *SYNC_VALUE.lock().unwrap() = false;
                 SYNC_SIGNAL.notify_all();
                 std::thread::park();
@@ -178,6 +179,7 @@ pub(crate) static GUI_STATE: Mutex<GuiState> = Mutex::new(GuiState::default_cons
 pub(crate) static GUI_THREAD: OnceLock<JoinHandle<()>> = OnceLock::new();
 pub(crate) static SYNC_VALUE: Mutex<bool> = Mutex::new(false);
 pub(crate) static SYNC_SIGNAL: Condvar = Condvar::new();
+pub(crate) static SURFACE_SIZE: Mutex<Vec2> = Mutex::new(Vec2::ZERO);
 
 // Resource ID as defined in FWindowsPlatformApplicationMisc::CreateApplication (UE4/UE5)
 const PROGRAM_ICON_UE5: usize = 0x7b;
@@ -325,9 +327,10 @@ impl ApplicationHandler for Gui {
                 self.last_frame = now;
                 self.count = self.count.overflowing_add(1).0;
                 self.gamepad.update(imgui);
+                *SURFACE_SIZE.lock().unwrap() = Vec2::from_array(window.as_ref().surface_size().into());
                 // Start draw UI
-                let imgui_context = unsafe { imgui.raw() as *const _ as usize };
                 let ui = imgui.new_frame();
+                let windows = WINDOW_STATES.lock().unwrap();
                 if let Some(main) = ui.begin_main_menu_bar() {
                     if let Some(_menu) = ui.begin_menu_with_enabled("Menu", true) {
                         if let Some(_menu) = ui.begin_menu_with_enabled("Themes", true) {
@@ -338,25 +341,24 @@ impl ApplicationHandler for Gui {
                             }
                         }
                     }
-                    let _ = ui.begin_menu_with_enabled(format!("ImGui context: 0x{:x}", imgui_context), true);
                 }
-
-                let mut windows = WINDOW_STATES.lock().unwrap();
-                /*
                 if let Some(windows) = windows.0 {
                     let windows = unsafe { windows.as_ref() };
                     for i in 0..windows.length {
-                        let window = &windows[i];
-                        ui.window(format!("Window {:x}", window.hash))
-                            .build(|| {
-                                unsafe { draw_window(window.hash) };
-                            });
+                        let win_state = &windows[i];
+                        let name: String = (&win_state.title).into();
+                        let window = ui.window(name);
+                        let window = match unsafe { get_window_initial_size(win_state.hash) } {
+                            Vec2::ZERO => window, v => window.size([v.x, v.y], Condition::FirstUseEver)
+                        };
+                        let window = match unsafe { get_window_initial_pos(win_state.hash) } {
+                            Vec2::ZERO => window, v => window.position([v.x, v.y], Condition::FirstUseEver)
+                        };
+                        window.build(|| unsafe { draw_window(win_state.hash) });
                     }
                 }
-                */
-                *windows = WindowStatePointer::null();
+                drop(windows);
                 AppDebugInfo::new(&self.fonts, ui, window.clone()).draw();
-                ui.show_demo_window(&mut true);
 
                 let draw_data = imgui.render();
                 let clear_color = ColorConverter::hsv_to_rgb(
@@ -419,16 +421,17 @@ impl<'a> AppDebugInfo<'a> {
 
         let window_dims = Vec2::from_array(self.window.surface_size().into());
         let title_length = debug_title.chars().map(|c| title_font.get_glyph(c).advance_x).sum::<f32>();
-        let title_pos = [window_dims.x - (title_length + 20.), window_dims.y - (title_font.font_size + main_font.font_size * 2.)];
+        let title_pos = [window_dims.x - (title_length + 20.), window_dims.y - (title_font.font_size * 1.1)];
         let info_length = debug_info.chars().map(|c| main_font.get_glyph(c).advance_x).sum::<f32>();
-        let info_pos = [ window_dims.x - (info_length + 20.), window_dims.y - (main_font.font_size + main_font.font_size / 2.)];
+        let info_pos = [window_dims.x - (info_length + 20.), 0.];
 
-        let debug_subtitle = ImColor32::from_rgba(255, 255, 255, 127);
+        let title_color = ImColor32::from_rgba(255, 255, 255, 127);
         let title_token = self.ui.push_font(tf_id);
-        self.ui.get_background_draw_list().add_text(title_pos, debug_subtitle, debug_title);
+        self.ui.get_background_draw_list().add_text(title_pos, title_color, debug_title);
         title_token.pop();
+        let debug_color = ImColor32::from_rgba(255, 255, 255, 255);
         let body_token = self.ui.push_font(m_id);
-        self.ui.get_background_draw_list().add_text(info_pos, debug_subtitle, debug_info);
+        self.ui.get_foreground_draw_list().add_text(info_pos, debug_color, debug_info);
         body_token.pop();
     }
 }
@@ -440,7 +443,6 @@ type SetImguiContextFn = unsafe extern "C" fn(
     *mut core::ffi::c_void
 );
 
-#[unsafe(no_mangle)]
 pub static SET_IMGUI_CONTEXT: OnceLock<SetImguiContextFn> = OnceLock::new();
 
 #[unsafe(no_mangle)]
@@ -526,18 +528,27 @@ impl<T: Send + Sync> Index<usize> for Array<T> {
     }
 }
 
+impl<T: Send + Sync> Drop for Array<T> {
+    fn drop(&mut self) {
+        for i in 0..self.length {
+            unsafe { std::ptr::drop_in_place(&self[i] as *const T as *mut T) };
+        }
+    }
+}
+
 #[repr(C)]
 pub struct WindowState {
     title: CSharpString,
-    hash: u32,
+    hash: u64,
+    size: Vec2,
+    position: Vec2,
 }
 
 unsafe impl Send for WindowState {}
 unsafe impl Sync for WindowState {}
 
-type DrawWindowFn = unsafe extern "C" fn(u32);
+type DrawWindowFn = unsafe extern "C" fn(u64);
 
-#[unsafe(no_mangle)]
 pub static DRAW_WINDOW: OnceLock<DrawWindowFn> = OnceLock::new();
 
 #[unsafe(no_mangle)]
@@ -546,6 +557,39 @@ pub unsafe extern "C" fn set_draw_window(cb: DrawWindowFn) {
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn draw_window(id: u32) {
+pub unsafe extern "C" fn draw_window(id: u64) {
     unsafe { DRAW_WINDOW.get().unwrap()(id) };
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn get_surface_size() -> Vec2 {
+    *SURFACE_SIZE.lock().unwrap()
+}
+
+type GetWindowInitialSizeFn = unsafe extern "C" fn(u64) -> Vec2;
+
+pub static GET_WINDOW_INITIAL_SIZE: OnceLock<GetWindowInitialSizeFn> = OnceLock::new();
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn set_get_window_initial_size(cb: GetWindowInitialSizeFn) {
+    GET_WINDOW_INITIAL_SIZE.set(cb).unwrap();
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn get_window_initial_size(id: u64) -> Vec2 {
+    unsafe { GET_WINDOW_INITIAL_SIZE.get().unwrap()(id) }
+}
+
+type GetWindowInitialPosFn = unsafe extern "C" fn(u64) -> Vec2;
+
+pub static GET_WINDOW_INITIAL_POS: OnceLock<GetWindowInitialPosFn> = OnceLock::new();
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn set_get_window_initial_pos(cb: GetWindowInitialPosFn) {
+    GET_WINDOW_INITIAL_POS.set(cb).unwrap();
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn get_window_initial_pos(id: u64) -> Vec2 {
+    unsafe { GET_WINDOW_INITIAL_POS.get().unwrap()(id) }
 }

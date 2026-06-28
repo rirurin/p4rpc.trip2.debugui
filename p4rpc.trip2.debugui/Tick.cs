@@ -21,11 +21,18 @@ public class Tick
         List<WindowState> WindowStatesList = [];
         foreach (var App in GuiState.Programs.Values)
         {
+            var AppHash = App.Name.GetHashCode();
+            Trip2DebugGui.Apps.Add(AppHash, App);
             foreach (var Window in App.Windows)
             {
-                var hash = Window.GetHashCode();
-                Trip2DebugGui.Windows.Add(hash, Window);
-                WindowStatesList.Add(new WindowState(Marshal.StringToHGlobalUni(Window.Title), hash));       
+                var WindowHash = ((long)AppHash << 0x20) | Window.Title.GetHashCode();
+                Trip2DebugGui.Windows.Add(WindowHash, Window);
+                WindowStatesList.Add(new WindowState(
+                    Marshal.StringToHGlobalUni(Window.Title), 
+                    WindowHash, 
+                    Window.StartSize, 
+                    Window.StartPos
+                    ));
             }
         }
         var WindowStatesArray = WindowStatesList.ToArray();
@@ -36,10 +43,9 @@ public class Tick
                 WindowStates.Entries = pWindowStatesArray;
                 WindowStates.Length = WindowStatesArray.Length;
                 Trip2DebugGui.set_window_states(&WindowStates);
-                // Log.Debug($"new_frame_ui start");
                 Trip2DebugGui.new_frame_ui();
-                // Log.Debug($"new_frame_ui end");
                 Trip2DebugGui.Windows.Clear();
+                Trip2DebugGui.Apps.Clear();
             }   
         }
         var dt = Trip2DebugGui.get_deltatime();

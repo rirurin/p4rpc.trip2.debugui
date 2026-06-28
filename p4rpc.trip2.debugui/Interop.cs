@@ -1,4 +1,5 @@
 ﻿extern alias imgui;
+using System.Numerics;
 using ImGui = imgui::p4rpc.trip2.ImGui.ImGui;
 
 using System.Runtime.CompilerServices;
@@ -25,10 +26,12 @@ public unsafe struct Array<T> where T : unmanaged
 }
 
 [StructLayout(LayoutKind.Sequential)]
-public struct WindowState(nint title, int hash)
+public struct WindowState(nint title, long hash, Vector2 size, Vector2 position)
 {
     public nint Title = title;
-    public int Hash = hash;
+    public long Hash = hash;
+    public Vector2 Size = size;
+    public Vector2 Position = position;
 }
 
 public static unsafe class Trip2DebugGui
@@ -39,7 +42,8 @@ public static unsafe class Trip2DebugGui
     private static IModLoader? _modLoader;
     private static IModConfig? _modConfig;
 
-    internal static Dictionary<int, IGUIWindow> Windows { get; } = new();
+    internal static Dictionary<long, IGUIWindow> Windows { get; } = new();
+    internal static Dictionary<int, IGUIApp> Apps { get; } = new();
     
     // Mod functions
         
@@ -59,7 +63,16 @@ public static unsafe class Trip2DebugGui
     internal static extern void set_window_states(Array<WindowState>* entries);
 
     [DllImport(__DllName, EntryPoint = "set_draw_window", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
-    internal static extern void set_draw_window(delegate* unmanaged[Stdcall]<int, void> callback);
+    internal static extern void set_draw_window(delegate* unmanaged[Stdcall]<long, void> callback);
+    
+    [DllImport(__DllName, EntryPoint = "get_surface_size", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+    internal static extern Vector2 get_surface_size();
+    
+    [DllImport(__DllName, EntryPoint = "set_get_window_initial_size", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+    internal static extern void set_get_window_initial_size(delegate* unmanaged[Stdcall]<long, Vector2> callback);
+    
+    [DllImport(__DllName, EntryPoint = "set_get_window_initial_pos", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+    internal static extern void set_get_window_initial_pos(delegate* unmanaged[Stdcall]<long, Vector2> callback);
     
     // riri-mod-tools functions
     
@@ -117,11 +130,19 @@ public static unsafe class Trip2DebugGui
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
-    public static void DrawWindow(int hashId)
+    public static void DrawWindow(long windowHash)
     {
-        if (Windows.TryGetValue(hashId, out var Window))
+        if (Windows.TryGetValue(windowHash, out var Window))
             Window.DrawContents();
     }
+
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
+    public static Vector2 GetWindowInitialSize(long windowHash)
+         => Windows.TryGetValue(windowHash, out var Window) ? Window.StartSize : Vector2.Zero;
+    
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
+    public static Vector2 GetWindowInitialPos(long windowHash)
+        => Windows.TryGetValue(windowHash, out var Window) ? Window.StartPos : Vector2.Zero;
 
     internal static void Initialize(IModLoader modLoader, IModConfig modConfig)
     {
@@ -135,6 +156,8 @@ public static unsafe class Trip2DebugGui
         set_free_csharp_string(&FreeCSharpString);
         set_set_imgui_context(&GetImguiContext);
         set_draw_window(&DrawWindow);
+        set_get_window_initial_size(&GetWindowInitialSize);
+        set_get_window_initial_pos(&GetWindowInitialPos);
     }
 }
 

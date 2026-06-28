@@ -41,8 +41,6 @@ public class Mod : ModBase
 
     public override void ConfigurationUpdated(Config configuration)
     {
-        // Apply settings from configuration.
-        // ... your code here.
         _configuration = configuration;
         _logger.WriteLine($"[{_modConfig.ModId}] Config Updated: Applying");
     }

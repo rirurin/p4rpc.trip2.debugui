@@ -8,6 +8,7 @@ riderModule.iml
 
 **/.idea/*
 **/.vs/*
+**/.vscode/*
 *.sln.DotSettings.user
 
 # Rust

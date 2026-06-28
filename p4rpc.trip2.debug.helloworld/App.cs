@@ -1,40 +1,41 @@
 ﻿extern alias imgui;
+using imgui::p4rpc.trip2.ImGui;
 using ImGui = imgui::p4rpc.trip2.ImGui.ImGui;
 using p4rpc.trip2.debugui.Interfaces;
-using RyoTune.Reloaded;
 
 namespace p4rpc.trip2.debug.helloworld;
 
 public class App : IGUIApp
 {
-    public string Name { get; } = "Hello App";
+    public string Name => "Hello App";
     public List<IGUIWindow> Windows { get; } = [];
+    public float CountTotal;
+    public float CountMult = 1;
     public void Tick(float DeltaTime)
     {
+        CountTotal += DeltaTime * CountMult;
         if (Windows.Count == 0)
-        {
-            Windows.Add(new AppWindow());
-        }
+            Windows.Add(new AppWindow(this));
     }
 }
 
-public class AppWindow : IGUIWindow
+public class AppWindow(App owner) : GUIWindow<App>(owner)
 {
-    public WeakReference<IGUIApp>? Owner { get; init; }
-    public string Title { get; } = "Hello Window";
-    public bool IsOpen { get; set; }
-    public void DrawContents()
+    public override string Title => "Sample Window";
+
+    private const string EXPECTED_GAME = "Persona 4 Revival";
+    
+    public override void DrawContents()
     {
-        ImGui.Text("Hello World!");
-        /*
-        bool isOpen = true;
-        if (!ImGui.Begin("Test Window", ref isOpen, 0))
-        {
-            ImGui.End();
-            return;
-        }
-        ImGui.Text("Hello World!");
-        ImGui.End();
-        */
+        if (!Owner.TryGetTarget(out var State)) return;
+        ImGui.Text($"File Version is {GameVersion.GetFileVersion()}");
+        var ProductName = GameVersion.GetLocalizedProperty("ProductName");
+        ImGui.Text($"Product Name is \"{ProductName}\". {(ProductName == EXPECTED_GAME ? "Welcome home!" : $"This is not {EXPECTED_GAME}!")}");
+        var regionAvail = new ImVec2.__Internal();
+        unsafe { ImGui.__Internal.GetContentRegionAvail((nint)(&regionAvail)); }
+        ImGui.SetNextItemWidth(regionAvail.x / 3);
+        ImGui.SliderFloat("Multiplier", ref State.CountMult, 0.25f, 4, "%f", 0);
+        ImGui.SameLine(0, 10);
+        ImGui.Text($"Total: {State.CountTotal}");
     }
 }

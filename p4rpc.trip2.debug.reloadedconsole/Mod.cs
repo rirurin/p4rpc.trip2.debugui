@@ -2,6 +2,9 @@
 using Reloaded.Mod.Interfaces;
 using p4rpc.trip2.debug.reloadedconsole.Template;
 using p4rpc.trip2.debug.reloadedconsole.Configuration;
+using p4rpc.trip2.debugui.Interfaces;
+using riri.yamlscans.ReloadedII;
+using RyoTune.Reloaded;
 
 namespace p4rpc.trip2.debug.reloadedconsole;
 
@@ -13,6 +16,9 @@ public class Mod : ModBase
     private readonly IMod _owner;
     private Config _configuration;
     private readonly IModConfig _modConfig;
+    
+    private IGUIState _guiState;
+    private Logging _app;
 
     public Mod(ModContext context)
     {
@@ -22,6 +28,13 @@ public class Mod : ModBase
         _owner = context.Owner;
         _configuration = context.Configuration;
         _modConfig = context.ModConfig;
+        
+        Project.Initialize(_modConfig, _modLoader, _logger, false);
+        Log.LogLevel = _configuration.LogLevel;
+        YamlScans.Initialize(_modConfig, _modLoader);
+        _guiState = YamlScans.GetDependency<IGUIState>();
+        _app = new(_logger, _guiState);
+        _guiState.Register(_app);
     }
 
     #region Standard Overrides
