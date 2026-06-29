@@ -60,7 +60,8 @@
     "Reloaded.Memory.SigScan.ReloadedII",
     "reloaded.sharedlib.hooks",
     "riri.modruntime",
-    "SharedScans.Reloaded"
+    "SharedScans.Reloaded",
+    "UE.Toolkit.Reloaded"
   ],
   "OptionalDependencies": [],
   "SupportedAppId": [

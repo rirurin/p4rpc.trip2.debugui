@@ -2,6 +2,12 @@
 using Reloaded.Mod.Interfaces;
 using p4rpc.trip2.debug.testtoolkit.Template;
 using p4rpc.trip2.debug.testtoolkit.Configuration;
+using p4rpc.trip2.debugui.Interfaces;
+using riri.yamlscans.ReloadedII;
+using RyoTune.Reloaded;
+using SharedScans.Interfaces;
+using UE.Toolkit.Core.Types.Unreal.Factories;
+using UE.Toolkit.Interfaces;
 
 namespace p4rpc.trip2.debug.testtoolkit;
 
@@ -14,6 +20,9 @@ public class Mod : ModBase
     private Config _configuration;
     private readonly IModConfig _modConfig;
 
+    private Context _context;
+    private App _app;
+
     public Mod(ModContext context)
     {
         _modLoader = context.ModLoader;
@@ -22,6 +31,26 @@ public class Mod : ModBase
         _owner = context.Owner;
         _configuration = context.Configuration;
         _modConfig = context.ModConfig;
+        
+        Project.Initialize(_modConfig, _modLoader, _logger, false);
+        Log.LogLevel = _configuration.LogLevel;
+        YamlScans.Initialize(_modConfig, _modLoader);
+        var sharedScans = YamlScans.GetDependency<ISharedScans>();
+        var unrealClasses = YamlScans.GetDependency<IUnrealClasses>();
+        var unrealFactory = YamlScans.GetDependency<IUnrealFactory>();
+        var unrealMemory = YamlScans.GetDependency<IUnrealMemory>();
+        var unrealMethods = YamlScans.GetDependency<IUnrealMethods>();
+        var unrealNames = YamlScans.GetDependency<IUnrealNames>();
+        var unrealObjects = YamlScans.GetDependency<IUnrealObjects>();
+        var unrealSpawning = YamlScans.GetDependency<IUnrealSpawning>();
+        var unrealState = YamlScans.GetDependency<IUnrealState>();
+        var unrealStrings = YamlScans.GetDependency<IUnrealStrings>();
+        var guiState = YamlScans.GetDependency<IGUIState>();
+        _context = new(_modLoader, _hooks!, _modConfig, sharedScans, unrealClasses, unrealFactory, unrealMemory,
+            unrealMethods, unrealNames, unrealObjects, unrealSpawning, unrealState, unrealStrings, guiState);
+        _app = new(_context);
+        _context.GUIState.Register(_app);
+
     }
 
     #region Standard Overrides

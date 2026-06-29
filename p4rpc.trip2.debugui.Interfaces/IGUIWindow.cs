@@ -28,7 +28,13 @@ public abstract class GUIWindow<TOwner>(TOwner owner) : IGUIWindow where TOwner:
     public bool IsOpen { get; set; }
     public virtual Vector2 StartSize => Vector2.Zero;
     public virtual Vector2 StartPos => Vector2.Zero;
-    public abstract void DrawContents();
+
+    public void DrawContents()
+    {
+        if (!Owner.TryGetTarget(out var app)) return;
+        Draw(app);
+    }
+    public abstract void Draw(TOwner owner);
 
     public bool Close()
     {

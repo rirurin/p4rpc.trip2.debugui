@@ -44,6 +44,7 @@ pub struct Gui {
     last_frame: Instant,
     time_elapsed: f32,
     count: usize,
+    show_metrics: bool,
 }
 
 pub type EventStateInner = Option<EventLoop>;
@@ -242,6 +243,7 @@ impl Gui {
             last_frame: Instant::now(),
             time_elapsed: 0.,
             count: 0,
+            show_metrics: false,
         })
     }
 
@@ -283,7 +285,8 @@ impl Gui {
         ui: &mut Ui,
         fonts: &HashMap<String, FontId>,
         themes: &ThemeRegistry,
-        window: Arc<Box<dyn Window>>
+        window: Arc<Box<dyn Window>>,
+        show_metrics: &mut bool
     ) -> Option<String> {
         let mut style_to_apply = None;
         let external_lock = INTEROP_STATE.lock().unwrap();
@@ -293,6 +296,9 @@ impl Gui {
             if let Some(_menu) = ui.begin_menu_with_enabled("Apps", true) {
                 if let Some(external) = external {
                     Self::main_menu_draw_apps(ui, external);
+                }
+                if ui.menu_item("Metrics") {
+                    *show_metrics = true;
                 }
             }
             if let Some(_menu) = ui.begin_menu_with_enabled("Themes", true) {
@@ -325,6 +331,9 @@ impl Gui {
         }
         drop(external_lock);
         AppDebugInfo::new(&fonts, ui, window.clone()).draw();
+        if *show_metrics {
+            ui.show_metrics_window(show_metrics);
+        }
         style_to_apply
     }
 
@@ -400,7 +409,6 @@ impl ApplicationHandler for Gui {
         let renderer = self.renderer.as_mut().unwrap();
         let platform = self.platform.as_mut().unwrap();
         let imgui = self.imgui.as_mut().unwrap();
-        let mut style_to_apply = None;
         match event {
             WindowEvent::CloseRequested => { event_loop.exit(); },
             WindowEvent::RedrawRequested => {
@@ -414,7 +422,8 @@ impl ApplicationHandler for Gui {
                 *SURFACE_SIZE.lock().unwrap() = Vec2::from_array(window.as_ref().surface_size().into());
                 // Start draw UI
                 let ui = imgui.new_frame();
-                style_to_apply = Self::draw_ui(ui, &self.fonts, &self.themes, window.clone());
+                let style_to_apply = Self::draw_ui(
+                    ui, &self.fonts, &self.themes, window.clone(), &mut self.show_metrics);
                 let draw_data = imgui.render();
                 let clear_color = ColorConverter::hsv_to_rgb(
                     (self.count as f32 / 300.) % 1., 0.25, 0.3);

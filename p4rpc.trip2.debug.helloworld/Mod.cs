@@ -32,8 +32,8 @@ public class Mod : ModBase
         Project.Initialize(_modConfig, _modLoader, _logger, false);
         Log.LogLevel = _configuration.LogLevel;
         YamlScans.Initialize(_modConfig, _modLoader);
-        _app = new();
         _guiState = YamlScans.GetDependency<IGUIState>();
+        _app = new(_guiState);
         _guiState.Register(_app);
     }
 

@@ -13,12 +13,12 @@ public interface IGUIApp
     bool RemoveWindow(IGUIWindow window);
 }
 
-public abstract class GUIApp : IGUIApp
+public abstract class GUIApp(IGUIState state) : IGUIApp
 {
     public abstract string Name { get; }
     public Dictionary<string, Action> Buttons { get; } = [];
     public List<IGUIWindow> Windows { get; } = [];
     public abstract void Tick(float DeltaTime);
-    public IGUIState? State { get; protected init; }
+    public IGUIState? State { get; protected init; } = state;
     public bool RemoveWindow(IGUIWindow window) => Windows.Remove(window);
 }

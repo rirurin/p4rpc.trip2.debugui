@@ -15,7 +15,7 @@ public class App : GUIApp
         CountTotal += DeltaTime * CountMult;
     }
 
-    public App()
+    public App(IGUIState state) : base(state)
     {
         var OpenWindow = () =>
         {
@@ -33,17 +33,16 @@ public class AppWindow(App owner) : GUIWindow<App>(owner)
 
     private const string EXPECTED_GAME = "Persona 4 Revival";
     
-    public override void DrawContents()
+    public override void Draw(App owner)
     {
-        if (!Owner.TryGetTarget(out var State)) return;
         ImGui.Text($"File Version is {GameVersion.GetFileVersion()}");
         var ProductName = GameVersion.GetLocalizedProperty("ProductName");
         ImGui.Text($"Product Name is \"{ProductName}\". {(ProductName == EXPECTED_GAME ? "Welcome home!" : $"This is not {EXPECTED_GAME}!")}");
         var regionAvail = new ImVec2.__Internal();
         unsafe { ImGui.__Internal.GetContentRegionAvail((nint)(&regionAvail)); }
         ImGui.SetNextItemWidth(regionAvail.x / 3);
-        ImGui.SliderFloat("Multiplier", ref State.CountMult, 0.25f, 4, "%f", 0);
+        ImGui.SliderFloat("Multiplier", ref owner.CountMult, 0.25f, 4, "%f", 0);
         ImGui.SameLine(0, 10);
-        ImGui.Text($"Total: {State.CountTotal}");
+        ImGui.Text($"Total: {owner.CountTotal}");
     }
 }

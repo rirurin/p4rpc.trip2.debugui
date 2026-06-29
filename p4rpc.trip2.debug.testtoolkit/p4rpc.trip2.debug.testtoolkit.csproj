@@ -38,7 +38,7 @@
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
         <None Update="Preview.png">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 
@@ -51,6 +51,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\UE.Toolkit\UE.Toolkit.Interfaces\UE.Toolkit.Interfaces.csproj" />
         <ProjectReference Include="..\p4rpc.trip2.debugui.Interfaces\p4rpc.trip2.debugui.Interfaces.csproj" />
         <ProjectReference Include="..\p4rpc.trip2.ImGui\p4rpc.trip2.ImGui.csproj" Aliases="imgui" />
     </ItemGroup>

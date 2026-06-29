@@ -2,6 +2,7 @@
 using Reloaded.Mod.Interfaces;
 using p4rpc.trip2.debug.uobjectviewer.Template;
 using p4rpc.trip2.debug.uobjectviewer.Configuration;
+using p4rpc.trip2.debugui.Interfaces;
 using riri.yamlscans.ReloadedII;
 using RyoTune.Reloaded;
 using SharedScans.Interfaces;
@@ -20,6 +21,7 @@ public class Mod : ModBase
     private readonly IModConfig _modConfig;
 
     private Context _context;
+    private App _app;
 
     public Mod(ModContext context)
     {
@@ -36,11 +38,10 @@ public class Mod : ModBase
         var sharedScans = YamlScans.GetDependency<ISharedScans>();
         var unrealObjects = YamlScans.GetDependency<IUnrealObjects>();
         var unrealFactory = YamlScans.GetDependency<IUnrealFactory>();
-        _context = new(_modLoader, _hooks!, _modConfig, sharedScans, unrealObjects, unrealFactory);
-        unrealObjects.OnObjectLoaded += (uobject) =>
-        {
-            unsafe { Log.Debug($"New object created: {(nint)uobject.Self:x}"); }
-        };
+        var guiState = YamlScans.GetDependency<IGUIState>();
+        _context = new(_modLoader, _hooks!, _modConfig, sharedScans, unrealObjects, unrealFactory, guiState);
+        _app = new(_context);
+        _context.GUIState.Register(_app);
     }
 
     #region Standard Overrides

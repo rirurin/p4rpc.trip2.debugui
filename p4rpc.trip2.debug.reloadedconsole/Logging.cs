@@ -18,10 +18,9 @@ public class Logging : GUIApp
     public int LineCount { get; set; } = 32;
     private ILogger Logger;
 
-    public Logging(ILogger logger, IGUIState state)
+    public Logging(ILogger logger, IGUIState state) : base(state)
     {
         Logger = logger;
-        State = state;
         Logger.OnWrite += (_, message) =>
         {
             if (ReloadedConsole.Count == 0)
@@ -34,7 +33,13 @@ public class Logging : GUIApp
             while (ReloadedConsole.Count > LineCount)
                 ReloadedConsole.RemoveAt(0);
         };
-        Windows.Add(new LoggingWindow(this));
+        var OpenWindow = () =>
+        {
+            if (Windows.Count == 0)
+                Windows.Add(new LoggingWindow(this));
+        };
+        OpenWindow();
+        Buttons.Add("Open Window", OpenWindow);
     }
     public override void Tick(float DeltaTime) {}
 }
@@ -64,16 +69,15 @@ public class LoggingWindow(Logging owner) : GUIWindow<Logging>(owner)
     }
 
 
-    public override void DrawContents()
+    public override void Draw(Logging owner)
     {
-        if (!Owner.TryGetTarget(out var State)) return;
-        var AsSingleLine = string.Join("\n", State.ReloadedConsole) + '\0';
+        var AsSingleLine = string.Join("\n", owner.ReloadedConsole) + '\0';
         var SingleLineAlloc = Marshal.StringToHGlobalAnsi(AsSingleLine);
         var regionAvail = new ImVec2.__Internal();
         unsafe
         {
             ImGui.__Internal.GetContentRegionAvail((nint)(&regionAvail));
-            State.LineCount = (int)regionAvail.y / (int)ImGui.GetFont().FontSize - 1;
+            owner.LineCount = (int)regionAvail.y / (int)ImGui.GetFont().FontSize - 1;
             ImGui.__Internal.InputTextMultiline(
                 "##ReloadedConsoleOutput",
                 (sbyte*)SingleLineAlloc,
