@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::ops::{Deref, DerefMut, Index};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::ptr::NonNull;
 use crate::Result;
 use std::sync::{Arc, Condvar, Mutex, OnceLock};
@@ -252,11 +252,21 @@ impl Gui {
             Into::<String>::into(get_directory_for_mod())).join("data");
         let key =  name.rsplit_once(".")
             .map_or_else(|| name, |(name, _)| name).to_owned();
+        self.add_font_inner(key, font_path.join(name), range, size)
+    }
+
+    pub fn add_font_from_path<P: AsRef<Path>>(&mut self, path: P, range: FontGlyphRanges, size: f32) -> Result<()> {
+        let key = path.as_ref().file_stem().map_or(
+            "Unnamed".to_string(), |v| v.to_str().unwrap().to_string());
+        self.add_font_inner(key, path, range, size)
+    }
+
+    fn add_font_inner<P: AsRef<Path>>(&mut self, key: String, path: P, range: FontGlyphRanges, size: f32) -> Result<()> {
         self.fonts.insert(
             key,
             riri_inspector_components::font::load_font(
                 self.imgui.as_mut().unwrap(),
-                font_path.join(name),
+                path.as_ref(),
                 range,
                 size
             )?
@@ -756,4 +766,26 @@ pub unsafe extern "C" fn set_button_action(cb: ButtonActionFn) {
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn button_action(hash: u64) {
     unsafe { BUTTON_ACTION.get().unwrap()(hash) };
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn add_font_from_path(path: CSharpString, /*glyph_range: *const u32,*/ font_size: f32) -> FontId {
+    let mut gui_state = GUI_STATE.lock().unwrap();
+    let null_font = unsafe { std::mem::transmute::<*const imgui::Font, FontId>(std::ptr::null())};
+    let Some(gui) = gui_state.as_mut() else { return null_font; };
+    let path = PathBuf::from(Into::<String>::into(path));
+    let font_name = path.file_stem().map_or("Unknown".to_string(), |v| v.to_str().unwrap().to_string());
+    let Ok(()) = gui.add_font_from_path(
+        path, FontGlyphRanges::default(), // unsafe { FontGlyphRanges::from_ptr(glyph_range) },
+        font_size) else { return null_font; };
+    riri_mod_tools_rt::logln!(Debug, "Added font");
+    gui.fonts.get(&font_name).map_or(null_font, |v| *v)
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn get_font(name: CSharpString) -> FontId {
+    let mut gui_state = GUI_STATE.lock().unwrap();
+    let null_font = unsafe { std::mem::transmute::<*const imgui::Font, FontId>(std::ptr::null())};
+    let Some(gui) = gui_state.as_mut() else { return null_font; };
+    gui.fonts.get(&Into::<String>::into(name)).map_or(null_font, |v| *v)
 }

@@ -50,6 +50,15 @@
             "AssetFileName": "Mod.zip"
           },
           "ReleaseMetadataName": "SharedScans.Reloaded.ReleaseMetadata.json"
+        },
+        "UnrealEssentials": {
+          "Config": {
+            "UserName": "AnimatedSwine37",
+            "RepositoryName": "UnrealEssentials",
+            "UseReleaseTag": false,
+            "AssetFileName": "Mod.zip"
+          },
+          "ReleaseMetadataName": "UnrealEssentials.ReleaseMetadata.json"
         }
       }
     }
@@ -61,7 +70,8 @@
     "reloaded.sharedlib.hooks",
     "riri.modruntime",
     "SharedScans.Reloaded",
-    "UE.Toolkit.Reloaded"
+    "UE.Toolkit.Reloaded",
+    "UnrealEssentials"
   ],
   "OptionalDependencies": [],
   "SupportedAppId": [

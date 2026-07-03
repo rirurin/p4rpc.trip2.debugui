@@ -8,6 +8,8 @@ using RyoTune.Reloaded;
 using SharedScans.Interfaces;
 using UE.Toolkit.Core.Types.Unreal.Factories;
 using UE.Toolkit.Interfaces;
+using UnrealEssentials.Interfaces;
+using IUnrealMemory = UE.Toolkit.Interfaces.IUnrealMemory;
 
 namespace p4rpc.trip2.debug.testtoolkit;
 
@@ -46,8 +48,9 @@ public class Mod : ModBase
         var unrealState = YamlScans.GetDependency<IUnrealState>();
         var unrealStrings = YamlScans.GetDependency<IUnrealStrings>();
         var guiState = YamlScans.GetDependency<IGUIState>();
+        var unrealEssentials = YamlScans.GetDependency<IUnrealEssentials>();
         _context = new(_modLoader, _hooks!, _modConfig, sharedScans, unrealClasses, unrealFactory, unrealMemory,
-            unrealMethods, unrealNames, unrealObjects, unrealSpawning, unrealState, unrealStrings, guiState);
+            unrealMethods, unrealNames, unrealObjects, unrealSpawning, unrealState, unrealStrings, guiState, unrealEssentials);
         _app = new(_context);
         _context.GUIState.Register(_app);
 

@@ -105,6 +105,12 @@ public static unsafe class Trip2DebugGui
     [DllImport(__DllName, EntryPoint = "set_button_action", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
     internal static extern void set_button_action(delegate* unmanaged[Stdcall]<ulong, void> callback);
     
+    [DllImport(__DllName, EntryPoint = "add_font_from_path", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+    internal static extern nint add_font_from_path(nint path, /*ref uint glyphRange,*/ float fontSize);
+    
+    [DllImport(__DllName, EntryPoint = "get_font", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+    internal static extern nint get_font(nint name);
+    
     // riri-mod-tools functions
     
     [DllImport(__DllName, EntryPoint = "set_current_process", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]

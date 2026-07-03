@@ -1,1 +1,1 @@
-use riri_mod_tools_proc :: date_time ; pub static COMMIT_COUNT : usize = 5usize ; pub static COMMIT_HASH : & 'static str = "56d736149f93a7694275f1e22a61f6bd744af2fd" ; pub static RELOADED_VERSION : & 'static str = "0.1.0" ; date_time ! (COMPILE_DATE) ;
+use riri_mod_tools_proc :: date_time ; pub static COMMIT_COUNT : usize = 6usize ; pub static COMMIT_HASH : & 'static str = "d04a798410f53bf51cf56c0a019bc00aa093df59" ; pub static RELOADED_VERSION : & 'static str = "0.1.0" ; date_time ! (COMPILE_DATE) ;

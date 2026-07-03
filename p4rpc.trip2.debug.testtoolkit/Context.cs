@@ -4,13 +4,15 @@ using Reloaded.Mod.Interfaces;
 using SharedScans.Interfaces;
 using UE.Toolkit.Core.Types.Unreal.Factories;
 using UE.Toolkit.Interfaces;
+using UnrealEssentials.Interfaces;
+using IUnrealMemory = UE.Toolkit.Interfaces.IUnrealMemory;
 
 namespace p4rpc.trip2.debug.testtoolkit;
 
 public class Context(IModLoader modLoader, IReloadedHooks hooks, IModConfig modConfig, ISharedScans sharedScans, 
     IUnrealClasses unrealClasses, IUnrealFactory unrealFactory, IUnrealMemory unrealMemory, IUnrealMethods unrealMethods,
     IUnrealNames unrealNames, IUnrealObjects unrealObjects, IUnrealSpawning unrealSpawning, IUnrealState unrealState, 
-    IUnrealStrings unrealStrings, IGUIState guiState)
+    IUnrealStrings unrealStrings, IGUIState guiState, IUnrealEssentials unrealEssentials)
 {
     internal IModLoader ModLoader { get; init; } = modLoader;
     internal IReloadedHooks Hooks { get; init; } = hooks;
@@ -26,4 +28,5 @@ public class Context(IModLoader modLoader, IReloadedHooks hooks, IModConfig modC
     internal IUnrealState UnrealState { get; init; } = unrealState;
     internal IUnrealStrings UnrealStrings { get; init; } = unrealStrings;
     internal IGUIState GUIState { get; init; } = guiState;
+    internal IUnrealEssentials UnrealEssentials { get; init; } = unrealEssentials;
 }
