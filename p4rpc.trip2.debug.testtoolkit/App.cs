@@ -6,6 +6,7 @@ using ImGui = imgui::p4rpc.trip2.ImGui.ImGui;
 
 using p4rpc.trip2.debugui.Interfaces;
 using RyoTune.Reloaded;
+using UE.Toolkit.Core.Types.Unreal.Factories.Interfaces;
 
 namespace p4rpc.trip2.debug.testtoolkit;
 
@@ -55,6 +56,8 @@ public class App : GUIApp
     internal StructExtensionError StructExtensionError { get; private set; } = StructExtensionError.DidNotCallConstructor;
     public bool CheckAddProperty;
     internal AddPropertyError AddPropertyError { get; private set; }
+    public bool CheckAddScriptStruct;
+    public bool AddScriptStructPassed;
     
     
     public override string Name => "UE Toolkit Unit Testing";
@@ -169,6 +172,23 @@ public class App : GUIApp
         return true;
     }
 
+    private bool TestAddScriptStruct()
+    {
+        if (!CheckAddScriptStruct)
+        {
+            AddScriptStructPassed = Context.UnrealClasses.CreateScriptStruct("AgePanelSection", 0x30,
+            [
+                Context.UnrealClasses.CreateF32Param("X1", 0),
+                Context.UnrealClasses.CreateF32Param("X2", 4),
+                Context.UnrealClasses.CreateF32Param("Y1", 8),
+                Context.UnrealClasses.CreateF32Param("Y2", 0xc),
+                Context.UnrealClasses.CreateF32Param("Field28", 0x28)
+            ], out _);
+            CheckAddScriptStruct = true;
+        }
+        return AddScriptStructPassed;
+    }
+
     public App(Context context) : base(context.GUIState)
     {
         Context = context;
@@ -188,6 +208,7 @@ public class App : GUIApp
                 }
                 if (!TestStructExtension(sizeOf)) return;
                 if (!TestAddProperties(sizeOf)) return;
+                if (!TestAddScriptStruct()) return;
             });
         }
         else
@@ -249,6 +270,13 @@ public class AddPropertiesTest(WeakReference<App> owner) : UnitTest(owner)
     protected override string Reason => Owner.TryGetTarget(out var owner) ? owner.AddPropertyError.ToString() : "N/A";
 }
 
+public class AddScriptStruct(WeakReference<App> owner) : UnitTest(owner)
+{
+    protected override string Name => "Add UScriptStruct";
+    protected override bool Passed => Owner.TryGetTarget(out var owner) && owner.AddScriptStructPassed;
+    protected override string Reason => "Failed...";
+}
+
 public class AppWindow : GUIWindow<App>
 {
     public override string Title => "Unreal Toolkit Unit Tests";
@@ -260,7 +288,7 @@ public class AppWindow : GUIWindow<App>
     {
         Tests.AddRange([
             new ObjectLogging(Owner), new MemoryTest(Owner), new StructExtensionTest(Owner),
-            new AddPropertiesTest(Owner)
+            new AddPropertiesTest(Owner), new AddScriptStruct(Owner)
         ]);
     }
 
@@ -290,7 +318,7 @@ public class AppWindow : GUIWindow<App>
         if (ImGui.BeginTable("##UEToolkitUnitTests", 3, (int)flags, ImGui.ImVec2ImVec2Float(0, 0), 0))
         {
             foreach (var (Index, Column) in TABLE_COLUMNS.Select((x, i) => (i, x)))
-                ImGui.TableSetupColumn(Column, 0, 0, (uint)Index);    
+                ImGui.TableSetupColumn(Column, 0, 0, (uint)Index);
             ImGui.TableHeadersRow();
             foreach (var Test in Tests)
                 Test.Row();
