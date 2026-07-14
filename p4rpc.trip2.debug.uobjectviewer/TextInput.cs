@@ -41,7 +41,7 @@ public class ResizableTextInput : IDisposable
         if (bDebug)
             ImGui.Text($"Buffer: {(nint)pUserData->buf:X}, Capacity: {pUserData->bufSize}");
         return ImGui.__Internal.InputText(label, pUserData->buf, pUserData->bufSize, 
-            (int)(flags | ImGuiInputTextFlags.CallbackResize | ImGuiInputTextFlags.CallbackAlways), 
+            (int)(flags | ImGuiInputTextFlags.CallbackResize | ImGuiInputTextFlags.CallbackEdit), 
             resizableTextCb, (nint)pUserData
         );
     }
@@ -55,6 +55,7 @@ public class ResizableTextInput : IDisposable
         var data = (ImGuiInputTextCallbackData.__Internal*)pData;
         var userData = (ResizableTextInputNative*)data->UserData;
         
+        
         switch ((ImGuiInputTextFlags)data->EventFlag)
         {
             case ImGuiInputTextFlags.CallbackResize:
@@ -65,7 +66,7 @@ public class ResizableTextInput : IDisposable
                     var newSize = *bufSize;
                     while (newSize < data->BufSize)
                         newSize *= 2;
-                    Console.WriteLine($"Resize {(nint)userData:X}: {userData->bufSize} -> {newSize}");
+                    // Console.WriteLine($"Resize {(nint)userData:X}: {userData->bufSize} -> {newSize}");
                     var nBuf = NativeMemory.AllocZeroed((nuint)newSize);
                     NativeMemory.Copy((void*)data->Buf, nBuf, (nuint)(*bufSize));
                     NativeMemory.Free((void*)data->Buf);
@@ -74,7 +75,7 @@ public class ResizableTextInput : IDisposable
                     data->Buf = (nint)userData->buf;
                 }
                 break;
-            case ImGuiInputTextFlags.CallbackAlways:
+            case ImGuiInputTextFlags.CallbackEdit:
                 if (userData->bDirty)
                 {
                     data->BufTextLen = userData->dirtyTextLen;

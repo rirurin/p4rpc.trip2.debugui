@@ -38,8 +38,11 @@ public class Mod : ModBase
         var sharedScans = YamlScans.GetDependency<ISharedScans>();
         var unrealObjects = YamlScans.GetDependency<IUnrealObjects>();
         var unrealFactory = YamlScans.GetDependency<IUnrealFactory>();
+        var unrealStrings = YamlScans.GetDependency<IUnrealStrings>();
         var guiState = YamlScans.GetDependency<IGUIState>();
-        _context = new(_modLoader, _hooks!, _modConfig, sharedScans, unrealObjects, unrealFactory, guiState);
+        var unrealMemory = YamlScans.GetDependency<IUnrealMemory>();
+        _context = new(_modLoader, _hooks!, _modConfig, sharedScans, unrealObjects, unrealFactory, guiState, 
+            unrealStrings, unrealMemory);
         _app = new(_context);
         _context.GUIState.Register(_app);
     }

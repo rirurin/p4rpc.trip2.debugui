@@ -141,14 +141,7 @@ public class ObjectSearch(WeakReference<App> context) : ContextualSearchbar<Weak
     public override void OnSearchResult()
     {
         if (!Context.TryGetTarget(out var App)) return;
-        App.ListOfObjects.Clear();
-        var GUObjectArray = App.Context.UnrealObjects.GUObjectArray;
-        for (var i = 0; i < GUObjectArray.NumElements; i++)
-        {
-            var CurrentObject = GUObjectArray.IndexToObject(i);
-            if (CurrentObject != null && SearchMatches(CurrentObject.NamePrivate.ToString()))
-                App.ListOfObjects[CurrentObject.Ptr] = CurrentObject;
-        }
+        App.RecreateObjectList(App.VisibleObjects, x => SearchMatches(x.NamePrivate.ToString()));
     }
 
     public override void OnSearchClear() => OnSearchResult();
