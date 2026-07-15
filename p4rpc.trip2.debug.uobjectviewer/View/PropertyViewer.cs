@@ -3,17 +3,12 @@ using UE.Toolkit.Core.Types.Unreal.Factories.Interfaces;
 
 namespace p4rpc.trip2.debug.uobjectviewer.View;
 
-public interface IPropertyStructRowProvider
+public class PropertyViewer(nint baseAddress, IFProperty inner)
 {
-    public void Draw();
-}
-
-public abstract class BasePropertyViewer(nint baseAddress, IFProperty inner)
-{
-    protected IFProperty Property => inner;
-    protected nint BaseAddress => baseAddress;
+    public IFProperty Property => inner;
+    public nint BaseAddress => baseAddress;
     
-    protected IPropertyValueViewer GetViewer(App owner, UObjectWindow window)
+    public IPropertyValueViewer GetViewer(App owner, UObjectWindow window)
     {
         return Property.ClassPrivate.Name switch
         {
@@ -33,13 +28,11 @@ public abstract class BasePropertyViewer(nint baseAddress, IFProperty inner)
             "NameProperty" => new NamePropertyValueViewer(BaseAddress, Property, owner.TypeName),
             "StrProperty" => new StringPropertyValueViewer(BaseAddress, owner.Context.UnrealStrings,
                 owner.Context.UnrealMemory, Property, owner.TypeName),
-            // case "TextProperty":
-            //     return new TextPropertyViewer(BaseAddress, owner.Context.UnrealStrings, 
-            //         owner.Context.UnrealMemory, Property, owner.TypeName);
-            "ObjectProperty" => // TODO
-                new ObjectPropertyValueViewer(BaseAddress, owner.Context.UnrealFactory, owner,
-                    owner.Context.UnrealFactory.CreateFObjectProperty(Property.Ptr), owner.TypeName),
-            "SoftBaseAddressProperty" => // TODO
+            "TextProperty" => new TextPropertyValueViewer(BaseAddress, owner.Context.UnrealStrings, 
+                owner.Context.UnrealMemory, Property, owner.TypeName, owner.Context.UnrealObjects),
+            "ObjectProperty" => new ObjectPropertyValueViewer(BaseAddress, owner.Context.UnrealFactory, owner,
+                owner.Context.UnrealFactory.CreateFObjectProperty(Property.Ptr), owner.TypeName),
+            "SoftObjectProperty" => // TODO
                 new UntypedPropertyValueViewer(BaseAddress, Property, owner.TypeName),
             "SoftClassProperty" => // TODO
                 new UntypedPropertyValueViewer(BaseAddress, Property, owner.TypeName),
@@ -56,6 +49,16 @@ public abstract class BasePropertyViewer(nint baseAddress, IFProperty inner)
             _ => new UntypedPropertyValueViewer(BaseAddress, Property, owner.TypeName)
         };
     }
-    
+}
+
+public interface IPropertyViewer
+{
+    void Draw(App owner, UObjectWindow window);
+}
+
+public abstract class BasePropertyViewer(nint baseAddress, IFProperty inner) : IPropertyViewer
+{
+    protected PropertyViewer Inner { get; private init; } = new(baseAddress, inner);
+
     public abstract void Draw(App owner, UObjectWindow window);
 }

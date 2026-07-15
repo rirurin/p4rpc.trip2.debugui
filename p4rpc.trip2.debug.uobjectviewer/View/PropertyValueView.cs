@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using imgui::p4rpc.trip2.ImGui;
 using RyoTune.Reloaded;
+using UE.Toolkit.Core.Types.Interfaces;
 using UE.Toolkit.Core.Types.Unreal.Factories;
 using ImGui = imgui::p4rpc.trip2.ImGui.ImGui;
 
@@ -229,8 +230,8 @@ public class NamePropertyValueViewer : BasePropertyValueViewer<IFProperty>
 
     public NamePropertyValueViewer(nint baseAddress, IFProperty propertyTyped, TypeName typeName) : base(baseAddress, propertyTyped, typeName)
     {
-        TextInput = new($"##Name @ 0x{PropertyTyped.Ptr:X}");
-        unsafe { TextInput.ReplaceBuffer(((FName*)(BaseAddress + PropertyTyped.Offset_Internal))->ToString()); }
+        TextInput = new($"##Name @ 0x{BaseAddress:X}");
+        unsafe { TextInput.ReplaceBuffer(((FName*)(BaseAddress + PropertyTyped.Offset_Internal))->ToString() + '\0'); }
     }
 
     public override void Draw()
@@ -238,7 +239,7 @@ public class NamePropertyValueViewer : BasePropertyValueViewer<IFProperty>
         if (TextInput.Draw(ImGuiInputTextFlags.EnterReturnsTrue))
         {
             unsafe { *(FName*)(BaseAddress + PropertyTyped.Offset_Internal) = 
-                new(Marshal.PtrToStringAnsi((nint)TextInput.GetBuffer())); }
+                new(Marshal.PtrToStringAnsi((nint)TextInput.GetBuffer()) + '\0'); }
         }
     }
 }
@@ -252,14 +253,14 @@ public class StringPropertyValueViewer : BasePropertyValueViewer<IFProperty>
     public StringPropertyValueViewer(nint baseAddress, IUnrealStrings unrealStrings, IUnrealMemory unrealMemory, 
         IFProperty propertyTyped, TypeName typeName) : base(baseAddress, propertyTyped, typeName)
     {
-        TextInput = new($"##String @ 0x{PropertyTyped.Ptr:X}");
+        TextInput = new($"##String @ 0x{BaseAddress:X}");
         UnrealStrings = unrealStrings;
         UnrealMemory = unrealMemory;
         unsafe
         {
             var strValue = (FString*)(BaseAddress + PropertyTyped.Offset_Internal);
             if (strValue->Data.ArrayNum > 0)
-                TextInput.ReplaceBuffer(strValue->ToString());
+                TextInput.ReplaceBuffer(strValue->ToString() + '\0');
         }
     }
 
@@ -274,51 +275,46 @@ public class StringPropertyValueViewer : BasePropertyValueViewer<IFProperty>
                     UnrealMemory.Free((nint)CurrentString->Data.AllocatorInstance);
                 // CurrentString->Data.AllocatorInstance
                 *(FString*)(BaseAddress + PropertyTyped.Offset_Internal) = 
-                    *UnrealStrings.CreateFString(Marshal.PtrToStringAnsi((nint)TextInput.GetBuffer()));
+                    *UnrealStrings.CreateFString(Marshal.PtrToStringAnsi((nint)TextInput.GetBuffer()) + '\0');
             }
         }
     }
 }
 
-/*
-public class TextPropertyViewer : BasePropertyViewer<IFProperty>
+public class TextPropertyValueViewer : BasePropertyValueViewer<IFProperty>
 {
     protected ResizableTextInput TextInput;
     private IUnrealStrings UnrealStrings;
     private IUnrealMemory UnrealMemory;
+    private IUnrealObjects UnrealObjects;
 
-    public TextPropertyViewer(nint baseAddress, IUnrealStrings unrealStrings, IUnrealMemory unrealMemory,
-        IFProperty property, TypeName typeName) : base(uobject, property, typeName)
+    public TextPropertyValueViewer(IntPtr baseAddress, IUnrealStrings unrealStrings, IUnrealMemory unrealMemory,
+        IFProperty property, TypeName typeName, IUnrealObjects unrealObjects) : base(baseAddress, property, typeName)
     {
-        TextInput = new($"##Text @ 0x{Property.Ptr:X}");
+        TextInput = new($"##Text @ 0x{BaseAddress:X}");
         UnrealStrings = unrealStrings;
         UnrealMemory = unrealMemory;
+        UnrealObjects = unrealObjects;
         unsafe
         {
-            var strValue = (FText*)(nUObject.Ptr + Property.Offset_Internal);
-            if (strValue->Data.ArrayNum > 0)
-                TextInput.ReplaceBuffer(strValue->ToString());
+            var textValue = (FText*)(BaseAddress + Property.Offset_Internal);
+            TextInput.ReplaceBuffer(UnrealStrings.FTextToString(textValue) + '\0');
         }
     }
 
     public override void Draw()
     {
-        base.Draw();
         if (TextInput.Draw(ImGuiInputTextFlags.EnterReturnsTrue))
         {
             unsafe
             {
-                var CurrentString = (FString*)(UObject.Ptr + Property.Offset_Internal);
-                if (CurrentString->Data.AllocatorInstance != null)
-                    UnrealMemory.Free((nint)CurrentString->Data.AllocatorInstance);
-                // CurrentString->Data.AllocatorInstance
-                *(FString*)(UObject.Ptr + Property.Offset_Internal) =
-                    *UnrealStrings.CreateFString(Marshal.PtrToStringAnsi((nint)TextInput.GetBuffer()));
+                // TODO: Deallocate previous FText (THIS CURRENTLY LEAKS MEMORY)
+                *(FText*)(BaseAddress + Property.Offset_Internal) =
+                    *UnrealObjects.CreateFText(Marshal.PtrToStringAnsi((nint)TextInput.GetBuffer()) + '\0');
             }
         }
     }
 }
-*/
 
 public class StructPropertyValueViewer(nint baseAddress, IFStructProperty propertyTyped, TypeName typeName,
     UObjectWindow window) : BasePropertyValueViewer<IFStructProperty>(baseAddress, propertyTyped, typeName)
@@ -450,6 +446,29 @@ public class ArrayPropertyValueViewer(nint baseAddress, IFArrayProperty property
                 ImGui.ImVec2ImVec2Nil()))
         {
             Window.AddView(Address, new ArrayListView(Window.GetCurrentView(), Address, PropertyTyped));
+        }
+        ImGui.SameLine(0, 10);
+        unsafe
+        {
+            ImGui.Text($"Length: {((TArray<byte>*)Address)->ArrayNum}");
+        }
+        
+    }
+}
+
+public class MapPropertyValueViewer(nint baseAddress, IFMapProperty propertyTyped, TypeName typeName, 
+    UObjectWindow window) : BasePropertyValueViewer<IFMapProperty>(baseAddress, propertyTyped, typeName)
+{
+    protected UObjectWindow Window => window;
+    
+    public override void Draw()
+    {
+        var Address = BaseAddress + PropertyTyped.Offset_Internal;
+        if (ImGui.Button(
+                $"View Map##{Address:X}", 
+                ImGui.ImVec2ImVec2Nil()))
+        {
+            Window.AddView(Address, new MapListView(Window.GetCurrentView(), Address, PropertyTyped));
         }
         ImGui.SameLine(0, 10);
         unsafe

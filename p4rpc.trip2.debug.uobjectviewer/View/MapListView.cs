@@ -8,21 +8,27 @@ using UE.Toolkit.Core.Types.Unreal.UE5_4_4;
 
 namespace p4rpc.trip2.debug.uobjectviewer.View;
 
-public class MapPropertyViewer(nint baseAddress, IFProperty property, int index) 
-    : BasePropertyViewer(baseAddress, property)
+public class MapPropertyViewer(nint baseAddress, IFMapProperty property, int index) 
+    // : BasePropertyViewer(baseAddress, property)
+    : IPropertyViewer
 {
+    private IFMapProperty Property => property;
+    private nint BaseAddress => baseAddress;
 
-    private int Index => index;
+    private PropertyViewer Key { get; } = new(baseAddress, property.KeyProp);
+    private PropertyViewer Value { get; } = new(baseAddress, property.ValueProp);
     
-    public override void Draw(App owner, UObjectWindow window)
+    public void Draw(App owner, UObjectWindow window)
     {
         ImGui.TableNextRow(0, 0);
         ImGui.TableSetColumnIndex(0);
-        ImGui.Text($"{Index}");
+        Key.GetViewer(owner, window).Draw();
         ImGui.TableSetColumnIndex(1);
-        GetViewer(owner, window).Draw();
+        Value.GetViewer(owner, window).Draw();
         ImGui.TableSetColumnIndex(2);
+        ImGui.BeginDisabled(true);
         if (ImGui.Button($"Remove##{BaseAddress:X}", ImGui.ImVec2ImVec2Nil())) {}
+        ImGui.EndDisabled();
     }
 }
 
@@ -57,7 +63,7 @@ public class MapListView(PropertyListView? parent, IntPtr baseAddress, IFMapProp
             unsafe
             {
                 /*
-                var ArrayRepr = (TArray<byte>*)BaseAddress;
+                var ArrayRepr = (TArray<TMapElementHashable<>>*)BaseAddress;
                 for (var i = 0; i < ArrayRepr->ArrayNum; i++)
                 {
                     var Address = BaseAddress + i * Value.Inner.ElementSize;

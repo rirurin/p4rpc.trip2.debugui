@@ -8,6 +8,11 @@ using UE.Toolkit.Core.Types.Unreal.Factories.Interfaces;
 
 namespace p4rpc.trip2.debug.uobjectviewer.View;
 
+public interface IPropertyStructRowProvider
+{
+    public void Draw();
+}
+
 public class BasePropertyStructRowProvider<TProperty>(TProperty inner, TypeName typeName) 
     : IPropertyStructRowProvider where TProperty: IFProperty
 {
@@ -82,7 +87,7 @@ public class StructPropertyViewer(nint baseAddress, IFProperty property)
     {
         ImGui.TableNextRow(0, 0);
         var Factory = owner.Context.UnrealFactory;
-        switch (Property.ClassPrivate.Name)
+        switch (Inner.Property.ClassPrivate.Name)
         {
             case "BoolProperty":
                 new BoolPropertyStructRowProvider( Factory.CreateFBoolProperty(property.Ptr), owner.TypeName).Draw();
@@ -97,7 +102,7 @@ public class StructPropertyViewer(nint baseAddress, IFProperty property)
                 new BasePropertyStructRowProvider<IFProperty>(property, owner.TypeName).Draw();
                 break;
         }
-        GetViewer(owner, window).Draw();
+        Inner.GetViewer(owner, window).Draw();
     }
 }
 

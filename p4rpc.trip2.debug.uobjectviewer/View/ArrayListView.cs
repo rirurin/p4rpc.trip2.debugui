@@ -11,7 +11,6 @@ namespace p4rpc.trip2.debug.uobjectviewer.View;
 public class ArrayPropertyViewer(nint baseAddress, IFProperty property, int index) 
     : BasePropertyViewer(baseAddress, property)
 {
-
     private int Index => index;
     
     public override void Draw(App owner, UObjectWindow window)
@@ -20,11 +19,13 @@ public class ArrayPropertyViewer(nint baseAddress, IFProperty property, int inde
         ImGui.TableSetColumnIndex(0);
         ImGui.Text($"{Index}");
         ImGui.TableSetColumnIndex(1);
-        GetViewer(owner, window).Draw();
+        Inner.GetViewer(owner, window).Draw();
         ImGui.TableSetColumnIndex(2);
-        if (ImGui.Button($"Remove##{BaseAddress:X}", ImGui.ImVec2ImVec2Nil())) {}
+        ImGui.BeginDisabled(true);
+        if (ImGui.Button($"Remove##{Inner.BaseAddress:X}", ImGui.ImVec2ImVec2Nil())) {}
         ImGui.TableSetColumnIndex(3);
-        if (ImGui.Button($"Insert Before##{BaseAddress:X}", ImGui.ImVec2ImVec2Nil())) {}
+        if (ImGui.Button($"Insert Before##{Inner.BaseAddress:X}", ImGui.ImVec2ImVec2Nil())) {}
+        ImGui.EndDisabled();
     }
 }
 

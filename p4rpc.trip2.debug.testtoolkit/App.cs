@@ -130,14 +130,32 @@ public class App : GUIApp
         return SizeOf != 0;
     }
 
+    private bool GetUStaticMeshSize(out nint SizeOf)
+    {
+        SizeOf = Context.UnrealEssentials.GetEngineVersion() switch
+        {
+            "++UE4+Release-4.27" => 0x150,
+            "++UE5+Release-5.4" => 0x248,
+            "++UE5+Release-5.2" or "++UE5+Release-5.3" or "++UE5+Release-5.5" => 0x250,
+            "++UE5+Release-5.0" or "++UE5+Release-5.1" => 0x258,
+            "++UE5+Release-5.6" => 0x290,
+            "++UE5+Release-5.7" => 0x2a0,
+            _ => 0
+        };
+        return SizeOf != 0;
+    }
+
     // Placeholder    
-    private struct USkeletalMesh {}
+    // private struct USkeletalMesh {}
+    
+    // Placeholder    
+    private struct UStaticMesh {}
 
     private bool TestStructExtension(nint sizeOf)
     {
         if (!CheckStructExtension)
         {
-            if (Context.UnrealClasses.GetClassInfoFromClass<USkeletalMesh>(out var ClassInfo))
+            if (Context.UnrealClasses.GetClassInfoFromClass<UStaticMesh>(out var ClassInfo))
             {
                 if (ClassInfo.PropertiesSize != sizeOf + EXTENSION_SIZE)
                 {
@@ -161,10 +179,10 @@ public class App : GUIApp
     {
         if (!CheckAddProperty)
         {
-            if (!Context.UnrealClasses.AddI32Property<USkeletalMesh>(
+            if (!Context.UnrealClasses.AddI32Property<UStaticMesh>(
                     "SampleInteger", (int)sizeOf, out _)) return false;
             AddPropertyError &= ~AddPropertyError.CouldNotCreateIntProperty;
-            if (!Context.UnrealClasses.AddStringProperty<USkeletalMesh>(
+            if (!Context.UnrealClasses.AddStringProperty<UStaticMesh>(
                     "SampleString", (int)sizeOf + 0x8, out _)) return false;
             AddPropertyError &= ~AddPropertyError.CouldNotCreateStringProperty;
             CheckAddProperty = true;   
@@ -198,9 +216,9 @@ public class App : GUIApp
         
         AddPropertyError = AddPropertyError.CouldNotCreateIntProperty | AddPropertyError.CouldNotCreateStringProperty;
 
-        if (GetUSkeletalMeshSize(out var sizeOf))
+        if (GetUStaticMeshSize(out var sizeOf))
         {
-            Context.UnrealClasses.AddExtension<USkeletalMesh>(EXTENSION_SIZE, x =>
+            Context.UnrealClasses.AddExtension<UStaticMesh>(EXTENSION_SIZE, x =>
             {
                 unsafe
                 {

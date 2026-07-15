@@ -2,6 +2,7 @@
 using Reloaded.Hooks.Definitions;
 using Reloaded.Mod.Interfaces;
 using SharedScans.Interfaces;
+using UE.Toolkit.Core.Types.Interfaces;
 using UE.Toolkit.Core.Types.Unreal.Factories;
 using UE.Toolkit.Interfaces;
 

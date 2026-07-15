@@ -86,17 +86,6 @@ public class App : GUIApp
                 List[CurrentObject.Ptr] = CurrentObject;
         }
     }
-
-    public bool ContainsObject(IUObject uobject)
-    {
-        var GUObjectArray = Context.UnrealObjects.GUObjectArray;
-        for (var i = 0; i < GUObjectArray.NumElements; i++)
-        {
-            var CurrentObject = GUObjectArray.IndexToObject(i);
-            if (CurrentObject.Ptr == uobject.Ptr) return true;
-        }
-        return false;
-    }
 }
 
 public class UObjectWindowColumn(string name, Func<Vector2, float> getWidth)

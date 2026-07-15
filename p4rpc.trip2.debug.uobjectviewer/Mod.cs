@@ -6,6 +6,7 @@ using p4rpc.trip2.debugui.Interfaces;
 using riri.yamlscans.ReloadedII;
 using RyoTune.Reloaded;
 using SharedScans.Interfaces;
+using UE.Toolkit.Core.Types.Interfaces;
 using UE.Toolkit.Core.Types.Unreal.Factories;
 using UE.Toolkit.Interfaces;
 
