@@ -47,5 +47,4 @@
             <HintPath>lib\CppSharp.Runtime.dll</HintPath>
         </Reference>
     </ItemGroup>
-
 </Project>
