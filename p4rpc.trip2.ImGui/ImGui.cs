@@ -4,6 +4,8 @@ using System.Security;
 
 namespace p4rpc.trip2.ImGui;
 
+#pragma warning disable CS1591
+
 public partial class ImGui
 {
     [DllImport("cimgui.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "ImGui_ImplWin32_WndProcHandler")] 
@@ -196,3 +198,5 @@ public partial class ImGui
 
     }
 }
+
+#pragma warning restore CS1591

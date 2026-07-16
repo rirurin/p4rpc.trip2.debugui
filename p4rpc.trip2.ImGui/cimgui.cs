@@ -10,6 +10,9 @@ using System.Security;
 using __CallingConvention = global::System.Runtime.InteropServices.CallingConvention;
 using __IntPtr = global::System.IntPtr;
 
+#pragma warning disable CS1591
+#pragma warning disable CS0109
+
 namespace p4rpc.trip2.ImGui
 {
     public enum VkSystemAllocationScope
@@ -68575,3 +68578,6 @@ namespace p4rpc.trip2.ImGui
         public unsafe delegate global::p4rpc.trip2.ImGui.PFN_vkVoidFunction Func_p4rpc_trip2_ImGui_PFN_vkVoidFunction_string8___IntPtr([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CppSharp.Runtime.UTF8Marshaller))] string function_name, __IntPtr user_data);
     }
 }
+
+#pragma warning restore CS1591
+#pragma warning restore CS0109

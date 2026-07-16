@@ -17,3 +17,6 @@ Cargo.lock
 
 # Build output
 *.pdb
+
+# Publish output
+Publish/*

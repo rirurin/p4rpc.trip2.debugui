@@ -2,7 +2,7 @@
     <Target Name="CopyCImgui" BeforeTargets="PreBuildEvent">
         <PropertyGroup>
             <!--<CImguiLib>deps/cimgui.dll</CImguiLib>-->
-            <CppSharpLib>deps/CppSharp.Runtime.dll</CppSharpLib>
+            <CppSharpLib>lib/CppSharp.Runtime.dll</CppSharpLib>
             <OutputPath>$(RELOADEDIIMODS)/p4rpc.trip2.debugui</OutputPath>
         </PropertyGroup>
         <ItemGroup>

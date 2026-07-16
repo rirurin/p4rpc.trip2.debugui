@@ -33,13 +33,10 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <Content Include="deps\cimgui.dll">
-            <PackagePath>runtimes/win-x64/native</PackagePath>
+        <Content Include="lib\CppSharp.Runtime.dll">
             <Pack>true</Pack>
-        </Content>
-        <Content Include="deps\CppSharp.Runtime.dll">
-            <Pack>true</Pack>
-            <PackagePath>deps</PackagePath>
+            <PackagePath>lib\net9.0</PackagePath>
+            <PackageCopyToOutput>true</PackageCopyToOutput>
         </Content>
     </ItemGroup>
 
@@ -47,7 +44,7 @@
 
     <ItemGroup>
         <Reference Include="CppSharp.Runtime">
-            <HintPath>deps\CppSharp.Runtime.dll</HintPath>
+            <HintPath>lib\CppSharp.Runtime.dll</HintPath>
         </Reference>
     </ItemGroup>
 
