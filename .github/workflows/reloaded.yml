@@ -21,17 +21,29 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  id-token: write
+  contents: write
+
 env:
   PUBLISH_BASE: ./Publish
   PUBLISH_GAMEBANANA_PATH: ToUpload/GameBanana
   PUBLISH_GITHUB_PATH: ToUpload/Generic
   PUBLISH_NUGET_PATH: ToUpload/NuGet
+  INTERFACE_PATH: Interfaces
 
   PUBLISH_CHANGELOG_PATH: CHANGELOG.md
 
   RELOADEDIIMODS: .
   RELOADED_TOOLS_PATH: Tools/Reloaded-Tools
 
+  UI_MOD_PATH: debugui
+  R2LOG_MOD_PATH: reloadedconsole
+  UOBJECT_MOD_PATH: uobjectviewer
+
+  REBUILD_CIMGUI: false
+
+  NUGET_URL: https://api.nuget.org/v3/index.json
   # Default value is official Reloaded package server.  
   RELOADED_NUGET_URL: https://packages.sewer56.moe/v3/index.json
 
@@ -67,3 +79,175 @@ jobs:
         toolchain: nightly
         components: rust-src
         target: x86_64-pc-windows-msvc
+
+    - name: Download DearImguiSharp # TODO
+      if: env.REBUILD_CIMGUI == 'true'
+      run: |
+        mkdir DearImguiSharp
+        cd DearImguiSharp
+        git clone https://github.com/rirurin/DearImguiSharp/ --recurse-submodules
+        cd ..
+
+    - name: Generate Bindings # TODO
+      if: env.REBUILD_CIMGUI == 'true'
+      run: |
+        cd generator
+        ./generator.bat
+
+    - name: Initialize CMake # TODO
+      if: env.REBUILD_CIMGUI == 'true'
+      run: |
+        mkdir cmake-build
+        cd cmake-build
+        cmake
+
+    - name: Build with CMake # TODO
+      if: env.REBUILD_CIMGUI == 'true'
+      working-directory: cmake-build
+      run: |
+        cmake --build .
+
+    - name: Build Code Generator # TODO
+      if: env.REBUILD_CIMGUI == 'true'
+      run: |
+        ls
+
+    - name: Create CppSharp Bindings # TODO
+      if: env.REBUILD_CIMGUI == 'true'
+      run: |
+        ls
+
+    - name: Build Interfaces
+      run: |
+        dotnet publish p4rpc.trip2.debugui.Interfaces -c Release --self-contained false -o "$env:PUBLISH_BASE/$env:INTERFACE_PATH" /p:OutputPath=../
+        dotnet publish p4rpc.trip2.ImGui -c Release --self-contained false -o "$env:PUBLISH_BASE/$env:INTERFACE_PATH" /p:OutputPath=../
+
+    - name: Build Reloaded Mods
+      run: |
+        ./PublishAll.ps1
+
+    - name: (Debug UI) Upload GitHub Release Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ '[Debug UI] GitHub Release' }} # Artifact name
+        path: | # A file, directory or wildcard pattern that describes what to upload
+          ${{ env.PUBLISH_BASE }}/${{ env.UI_MOD_PATH }}/${{ env.PUBLISH_GITHUB_PATH }}/*
+
+    - name: (Debug UI) Upload GameBanana Release Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ '[Debug UI] GameBanana Release' }} # Artifact name
+        path: | # A file, directory or wildcard pattern that describes what to upload
+          ${{ env.PUBLISH_BASE }}/${{ env.UI_MOD_PATH }}/${{ env.PUBLISH_GAMEBANANA_PATH }}/*
+
+    - name: (Debug UI) Upload NuGet Release Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ '[Debug UI] NuGet Release' }} # Artifact name
+        path: | # A file, directory or wildcard pattern that describes what to upload
+          ${{ env.PUBLISH_BASE }}/${{ env.UI_MOD_PATH }}/${{ env.PUBLISH_GAMEBANANA_PATH }}/*
+
+    - name: (Reloaded Console) Upload GitHub Release Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ '[Reloaded Console] GitHub Release' }} # Artifact name
+        path: | # A file, directory or wildcard pattern that describes what to upload
+          ${{ env.PUBLISH_BASE }}/${{ env.R2LOG_MOD_PATH }}/${{ env.PUBLISH_GITHUB_PATH }}/*
+
+    - name: (Reloaded Console) Upload GameBanana Release Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ '[Reloaded Console] GameBanana Release' }} # Artifact name
+        path: | # A file, directory or wildcard pattern that describes what to upload
+          ${{ env.PUBLISH_BASE }}/${{ env.R2LOG_MOD_PATH }}/${{ env.PUBLISH_GAMEBANANA_PATH }}/*
+
+    - name: (Reloaded Console) Upload NuGet Release Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ '[Reloaded Console] NuGet Release' }} # Artifact name
+        path: | # A file, directory or wildcard pattern that describes what to upload
+          ${{ env.PUBLISH_BASE }}/${{ env.R2LOG_MOD_PATH }}/${{ env.PUBLISH_GAMEBANANA_PATH }}/*
+
+    - name: (UObject Viewer) Upload GitHub Release Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ '[UObject Viewer] GitHub Release' }} # Artifact name
+        path: | # A file, directory or wildcard pattern that describes what to upload
+          ${{ env.PUBLISH_BASE }}/${{ env.UOBJECT_MOD_PATH }}/${{ env.PUBLISH_GITHUB_PATH }}/*
+
+    - name: (UObject Viewer) Upload GameBanana Release Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ '[UObject Viewer] GameBanana Release' }} # Artifact name
+        path: | # A file, directory or wildcard pattern that describes what to upload
+          ${{ env.PUBLISH_BASE }}/${{ env.UOBJECT_MOD_PATH }}/${{ env.PUBLISH_GAMEBANANA_PATH }}/*
+
+    - name: (UObject Viewer) Upload NuGet Release Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ '[UObject Viewer] NuGet Release' }} # Artifact name
+        path: | # A file, directory or wildcard pattern that describes what to upload
+          ${{ env.PUBLISH_BASE }}/${{ env.UOBJECT_MOD_PATH }}/${{ env.PUBLISH_GAMEBANANA_PATH }}/*
+
+    - name: Upload to GitHub Releases (on Tag)
+      uses: softprops/action-gh-release@v0.1.14
+      if: env.IS_RELEASE == 'true'
+      with:
+        # Path to load note-worthy description of changes in release from
+        body_path: ${{ env.PUBLISH_CHANGELOG_PATH }}
+        # Newline-delimited list of path globs for asset files to upload
+        files: |
+          ${{ env.PUBLISH_BASE }}/${{ env.UI_MOD_PATH }}/${{ env.PUBLISH_GITHUB_PATH }}/*
+          ${{ env.PUBLISH_BASE }}/${{ env.R2LOG_MOD_PATH }}/${{ env.PUBLISH_GITHUB_PATH }}/*
+          ${{ env.PUBLISH_BASE }}/${{ env.UOBJECT_MOD_PATH }}/${{ env.PUBLISH_GITHUB_PATH }}/*
+
+    - name: Login to NuGet (on Tag)
+      uses: NuGet/login@v1
+      if: env.IS_RELEASE == 'true'
+      id: login
+      with:
+        user: ${{ secrets.NUGET_USER }}
+
+    - name: Push Dependencies to NuGet (on Tag)
+      if: env.IS_RELEASE == 'true'
+      run: |
+        if ([string]::IsNullOrEmpty("${{ steps.login.outputs.NUGET_API_KEY }}"))
+        {
+            Write-Host "Could not retrieve the NuGet key, skipping."
+            return
+        }
+        $Items = Get-ChildItem -Path "*.nupkg"
+        Foreach ($Item in $Items)
+        {
+            Write-Host "Pushing $Item"
+            dotnet nuget push "$Item" -k "${{ steps.login.outputs.NUGET_API_KEY }}" -s "${{ env.NUGET_URL }}" --skip-duplicate
+        }
+
+    - name: Push Mods to Reloaded NuGet (on Tag)
+      env: 
+        RELOADED_NUGET_KEY: ${{ secrets.RELOADED_NUGET_KEY }}
+      if: env.IS_RELEASE == 'true'
+      run: |
+        if ([string]::IsNullOrEmpty("$env:RELOADED_NUGET_KEY"))
+        {
+            Write-Host "NuGet Repository Key (GitHub Secrets -> RELOADED_NUGET_KEY) Not Specified. Skipping."
+            return
+        }
+        $Items = Get-ChildItem -Path "${{ env.PUBLISH_BASE }}/${{ env.UI_MOD_PATH }}/${{ env.PUBLISH_NUGET_PATH }}/*.nupkg"
+        Foreach ($Item in $Items)
+        {
+            Write-Host "Pushing $Item"
+            dotnet nuget push "$Item" -k "$env:RELOADED_NUGET_KEY" -s "$env:RELOADED_NUGET_URL" --skip-duplicate
+        }
+        $Items = Get-ChildItem -Path "${{ env.PUBLISH_BASE }}/${{ env.R2LOG_MOD_PATH }}/${{ env.PUBLISH_NUGET_PATH }}/*.nupkg"
+        Foreach ($Item in $Items)
+        {
+            Write-Host "Pushing $Item"
+            dotnet nuget push "$Item" -k "$env:RELOADED_NUGET_KEY" -s "$env:RELOADED_NUGET_URL" --skip-duplicate
+        }
+        $Items = Get-ChildItem -Path "${{ env.PUBLISH_BASE }}/${{ env.UOBJECT_MOD_PATH }}/${{ env.PUBLISH_NUGET_PATH }}/*.nupkg"
+        Foreach ($Item in $Items)
+        {
+            Write-Host "Pushing $Item"
+            dotnet nuget push "$Item" -k "$env:RELOADED_NUGET_KEY" -s "$env:RELOADED_NUGET_URL" --skip-duplicate
+        }

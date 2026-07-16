@@ -5,11 +5,31 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <Authors>Rirurin</Authors>
-        <Description>C# Wrapper for Dear ImGui library (docking branch) with internal API exposed and support for Win32 + Vulkan. Based on DearImguiSharp: https://github.com/sewer56/DearImguiSharp</Description>
+
+	    <!-- Create NuGet Package and include your Documentation/comments inside. -->
+	    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+
+        <!-- Set to the same as your project name/namespace -->
+	    <PackageId>p4rpc.trip2.ImGui</PackageId>
+
+        <!-- Use Semantic Versioning -->
         <Version>1.91.3</Version>
+        <Authors>Rirurin</Authors>
+
+        <!-- Description of your Package -->
+        <Description>C# Wrapper for Dear ImGui library (docking branch) with internal API exposed and support for Win32 + Vulkan. Based on DearImguiSharp: https://github.com/sewer56/DearImguiSharp</Description>
+        
+        <!-- Link to your Source Code [GitHub Page, etc.] -->
         <PackageProjectUrl>https://github.com/rirurin/p4rpc.trip2.debugui</PackageProjectUrl>
         <RepositoryUrl>https://github.com/rirurin/p4rpc.trip2.debugui</RepositoryUrl>
+
+	    <!-- URL to the icon seen for your package in NuGet Search -->
+	    <PackageIconUrl>https://avatars1.githubusercontent.com/u/45473408</PackageIconUrl>
+
+	    <!-- SPDX License Identifier: https://spdx.org/licenses/ -->
+	    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+	    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     </PropertyGroup>
     
     <ItemGroup>
@@ -19,11 +39,7 @@
         </Content>
         <Content Include="deps\CppSharp.Runtime.dll">
             <Pack>true</Pack>
-            <PackagePath>lib/netcoreapp3.1</PackagePath>
-        </Content>
-        <Content Include="deps\CppSharp.Runtime.dll">
-            <Pack>true</Pack>
-            <PackagePath>lib/net5.0</PackagePath>
+            <PackagePath>deps</PackagePath>
         </Content>
     </ItemGroup>
 

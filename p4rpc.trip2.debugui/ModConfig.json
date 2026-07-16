@@ -13,6 +13,12 @@
   "IsLibrary": true,
   "ReleaseMetadataFileName": "p4rpc.trip2.debugui.ReleaseMetadata.json",
   "PluginData": {
+    "GitHubRelease": {
+      "UserName": "Rirurin",
+      "RepositoryName": "p4rpc.trip2.debugui",
+      "UseReleaseTag": true,
+      "AssetFileName": "Mod.zip"
+    },
     "GitHubDependencies": {
       "IdToConfigMap": {
         "Reloaded.Memory.SigScan.ReloadedII": {

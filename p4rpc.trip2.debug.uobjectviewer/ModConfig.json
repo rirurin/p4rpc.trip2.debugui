@@ -13,8 +13,23 @@
   "IsLibrary": false,
   "ReleaseMetadataFileName": "p4rpc.trip2.debug.uobjectviewer.ReleaseMetadata.json",
   "PluginData": {
+    "GitHubRelease": {
+      "UserName": "Rirurin",
+      "RepositoryName": "p4rpc.trip2.debugui",
+      "UseReleaseTag": true,
+      "AssetFileName": "Mod.zip"
+    },
     "GitHubDependencies": {
       "IdToConfigMap": {
+        "p4rpc.trip2.debugui": {
+          "Config": {
+            "UserName": "Rirurin",
+            "RepositoryName": "p4rpc.trip2.debugui",
+            "UseReleaseTag": true,
+            "AssetFileName": "Mod.zip"
+          },
+          "ReleaseMetadataName": "p4rpc.trip2.debugui.ReleaseMetadata.json"
+        },
         "Reloaded.Memory.SigScan.ReloadedII": {
           "Config": {
             "UserName": "Reloaded-Project",

@@ -5,6 +5,31 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+	    <!-- Create NuGet Package and include your Documentation/comments inside. -->
+	    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+
+        <!-- Set to the same as your project name/namespace -->
+	    <PackageId>p4rpc.trip2.debugui.Interfaces</PackageId>
+
+	    <!-- Use Semantic Versioning -->
+	    <Version>0.1.0</Version>
+	    <Authors>Rirurin</Authors>
+
+	    <!-- Description of your Package -->
+	    <Description>Allows Reloaded-II mod authors to create a debugging UI using ImGui to display on the debug window.</Description>
+
+	    <!-- Link to your Source Code [GitHub Page, etc.] -->
+	    <PackageProjectUrl></PackageProjectUrl>
+	    <RepositoryUrl>https://github.com/rirurin/p4rpc.trip2.debugui</RepositoryUrl>
+
+	    <!-- URL to the icon seen for your package in NuGet Search -->
+	    <PackageIconUrl>https://avatars1.githubusercontent.com/u/45473408</PackageIconUrl>
+
+	    <!-- SPDX License Identifier: https://spdx.org/licenses/ -->
+	    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+	    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     </PropertyGroup>
 
 </Project>
