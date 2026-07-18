@@ -96,10 +96,27 @@ public class UObjectWindowColumn(string name, Func<Vector2, float> getWidth)
 
 public abstract class PropertyListView(PropertyListView? parent)
 {
-    internal Dictionary<nint, PropertyListView> Children = [];
+    internal readonly Dictionary<PropertyListKey, PropertyListView> Children = [];
     internal PropertyListView? Parent { get; set; } = parent;
     
     public abstract void Draw(App owner, UObjectWindow window);
 
-    public abstract nint GetBaseAddress();
+    public abstract PropertyListKey GetKey();
+}
+
+public class PropertyListKey(nint address, string name)
+{
+    public nint Address => address;
+    public string Name => name;
+
+    public override string ToString() => $"{Name} @ 0x{Address:x}";
+
+    public override bool Equals(object? obj)
+    {
+        if (obj.GetType() != GetType()) return false;
+        var Other = (PropertyListKey)obj;
+        return Address.Equals(Other.Address) && Name.Equals(Other.Name);
+    }
+    
+    public override int GetHashCode() => HashCode.Combine(Address, Name);
 }

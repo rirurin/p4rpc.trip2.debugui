@@ -40,8 +40,8 @@ public class PropertyViewer(nint baseAddress, IFProperty inner)
                 owner.Context.UnrealFactory.CreateFStructProperty(Property.Ptr), owner.TypeName, window),
             "EnumProperty" => new EnumPropertyValueViewer(BaseAddress,
                 owner.Context.UnrealFactory.CreateFEnumProperty(Property.Ptr), owner.TypeName),
-            "MapProperty" => // TODO
-                new UntypedPropertyValueViewer(BaseAddress, Property, owner.TypeName),
+            "MapProperty" => new MapPropertyValueViewer(BaseAddress, 
+                owner.Context.UnrealFactory.CreateFMapProperty(Property.Ptr), owner.TypeName, window),
             "ArrayProperty" => new ArrayPropertyValueViewer(BaseAddress,
                 owner.Context.UnrealFactory.CreateFArrayProperty(Property.Ptr), owner.TypeName, window),
             "SetProperty" => // TODO

@@ -333,7 +333,7 @@ public class AppWindow : GUIWindow<App>
     public override void Draw(App owner)
     {
         const ImGuiTableFlags flags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg;
-        if (ImGui.BeginTable("##UEToolkitUnitTests", 3, (int)flags, ImGui.ImVec2ImVec2Float(0, 0), 0))
+        if (ImGui.BeginTable("##UEToolkitUnitTests", 3, (int)flags, ImGui.ImVec2ImVec2Nil(), 0))
         {
             foreach (var (Index, Column) in TABLE_COLUMNS.Select((x, i) => (i, x)))
                 ImGui.TableSetupColumn(Column, 0, 0, (uint)Index);

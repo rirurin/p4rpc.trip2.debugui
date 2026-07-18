@@ -48,8 +48,8 @@
         <PackageReference Include="riri.yamlscans.ReloadedII" Version="1.1.1" />
         <PackageReference Include="RyoTune.Reloaded" Version="4.2.1" />
         <PackageReference Include="SharedScans.Interfaces" Version="1.2.0" />
-        <PackageReference Include="UE.Toolkit.Core" Version="1.8.0" />
-        <PackageReference Include="UE.Toolkit.Interfaces" Version="1.8.0" />
+        <PackageReference Include="UE.Toolkit.Core" Version="1.9.0" />
+        <PackageReference Include="UE.Toolkit.Interfaces" Version="1.9.0" />
         <PackageReference Include="UnrealEssentials.Interfaces" Version="1.3.0" />
     </ItemGroup>
 

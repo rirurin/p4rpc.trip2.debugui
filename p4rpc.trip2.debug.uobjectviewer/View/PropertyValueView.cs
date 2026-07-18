@@ -328,7 +328,9 @@ public class StructPropertyValueViewer(nint baseAddress, IFStructProperty proper
                 $"View Struct##{Address:X}", 
                 ImGui.ImVec2ImVec2Nil()))
         {
-            Window.AddView(Address, new StructListView(Window.GetCurrentView(), Address, PropertyTyped.Struct));
+            Window.AddView(
+                new(Address, Window.UnrealClasses!.GetPropertyTypeName(PropertyTyped)), 
+                new StructListView(Window.GetCurrentView(), Address, PropertyTyped.Struct));
         }
         ImGui.SameLine(0, 10);
         ImGui.Text($"0x{Address:X}");
@@ -445,7 +447,11 @@ public class ArrayPropertyValueViewer(nint baseAddress, IFArrayProperty property
                 $"View Array##{Address:X}", 
                 ImGui.ImVec2ImVec2Nil()))
         {
-            Window.AddView(Address, new ArrayListView(Window.GetCurrentView(), Address, PropertyTyped));
+            Window.AddView(
+                new(Address, Window.UnrealClasses!.GetPropertyTypeName(PropertyTyped)), 
+                new ArrayListView(Window.GetCurrentView(), 
+                Address, PropertyTyped, Window.UnrealClasses!, Window.UnrealMemory!)
+                );
         }
         ImGui.SameLine(0, 10);
         unsafe
@@ -468,7 +474,11 @@ public class MapPropertyValueViewer(nint baseAddress, IFMapProperty propertyType
                 $"View Map##{Address:X}", 
                 ImGui.ImVec2ImVec2Nil()))
         {
-            Window.AddView(Address, new MapListView(Window.GetCurrentView(), Address, PropertyTyped));
+            Window.AddView(
+                new(Address, Window.UnrealClasses!.GetPropertyTypeName(PropertyTyped)),  
+                new MapListView(Window.GetCurrentView(), Address, 
+                PropertyTyped, Window.UnrealMemory!, Window.UnrealFactory!, Window.UnrealClasses!)
+                );
         }
         ImGui.SameLine(0, 10);
         unsafe

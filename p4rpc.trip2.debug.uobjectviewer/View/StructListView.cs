@@ -137,7 +137,7 @@ public class StructListView(PropertyListView? parent, nint baseAddress, IUStruct
         var regionAvail = new ImVec2.__Internal();
         unsafe { ImGui.__Internal.GetContentRegionAvail((nint)(&regionAvail)); }
         var regionAvailable = new Vector2(regionAvail.x, regionAvail.y);
-        if (ImGui.BeginTable("##UEToolkitUnitTests", 4, (int)flags, ImGui.ImVec2ImVec2Float(0, 0), 0))
+        if (ImGui.BeginTable("##UEToolkitUnitTests", 4, (int)flags, ImGui.ImVec2ImVec2Nil(), 0))
         {
             var columnFlags = (int)ImGuiTableColumnFlags.WidthFixed;
             foreach (var (Index, Column) in TABLE_COLUMNS.Select((x, i) => (i, x)))
@@ -149,7 +149,7 @@ public class StructListView(PropertyListView? parent, nint baseAddress, IUStruct
         }
     }
 
-    public override string ToString() => $"{GetBaseAddress():X}";
+    public override string ToString() => $"{GetKey():X}";
 
-    public override nint GetBaseAddress() => BaseAddress;
+    public override PropertyListKey GetKey() => new(BaseAddress, Value.NamePrivate.ToString());
 }

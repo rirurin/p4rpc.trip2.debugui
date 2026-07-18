@@ -42,8 +42,9 @@ public class Mod : ModBase
         var unrealStrings = YamlScans.GetDependency<IUnrealStrings>();
         var guiState = YamlScans.GetDependency<IGUIState>();
         var unrealMemory = YamlScans.GetDependency<IUnrealMemory>();
+        var unrealClasses = YamlScans.GetDependency<IUnrealClasses>();
         _context = new(_modLoader, _hooks!, _modConfig, sharedScans, unrealObjects, unrealFactory, guiState, 
-            unrealStrings, unrealMemory);
+            unrealStrings, unrealMemory, unrealClasses);
         _app = new(_context);
         _context.GUIState.Register(_app);
     }
