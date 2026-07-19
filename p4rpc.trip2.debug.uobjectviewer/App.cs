@@ -25,8 +25,6 @@ public class App : GUIApp
     internal readonly Dictionary<nint, IUObject> AllObjects;
     
     internal ObjectSearch ObjectSearch { get; }
-    
-    internal TypeName TypeName { get; }
 
     internal bool InitialLoad = false;
 
@@ -35,7 +33,6 @@ public class App : GUIApp
     public App(Context context) : base(context.GUIState)
     {
         Context = context;
-        TypeName = new(Context.UnrealFactory);
         VisibleObjects = [];
         AllObjects = [];
         ObjectSearch = new(new(this));

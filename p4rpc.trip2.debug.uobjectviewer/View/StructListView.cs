@@ -5,6 +5,7 @@ using UE.Toolkit.Core.Types.Unreal.Factories;
 using ImGui = imgui::p4rpc.trip2.ImGui.ImGui;
 
 using UE.Toolkit.Core.Types.Unreal.Factories.Interfaces;
+using UE.Toolkit.Interfaces;
 
 namespace p4rpc.trip2.debug.uobjectviewer.View;
 
@@ -13,16 +14,16 @@ public interface IPropertyStructRowProvider
     public void Draw();
 }
 
-public class BasePropertyStructRowProvider<TProperty>(TProperty inner, TypeName typeName) 
+public class BasePropertyStructRowProvider<TProperty>(TProperty inner, IUnrealClasses unrealClasses) 
     : IPropertyStructRowProvider where TProperty: IFProperty
 {
     protected TProperty Property { get; } = inner;
-    protected TypeName TypeName { get; } = typeName;
+    protected IUnrealClasses IUnrealClasses { get; } = unrealClasses;
     
     public virtual void Draw()
     {
         ImGui.TableSetColumnIndex(0);
-        ImGui.Text($"{TypeName.GetPropertyTypeName(Property)}");
+        ImGui.Text($"{IUnrealClasses.GetPropertyTypeName(Property)}");
         // ImGui.Text($"{Property.ClassPrivate.Name}");
         ImGui.TableSetColumnIndex(1);
         ImGui.Text($"{Property.NamePrivate}");
@@ -32,13 +33,13 @@ public class BasePropertyStructRowProvider<TProperty>(TProperty inner, TypeName 
     }
 }
 
-public class BoolPropertyStructRowProvider(IFBoolProperty inner, TypeName typeName) 
-    : BasePropertyStructRowProvider<IFBoolProperty>(inner, typeName)
+public class BoolPropertyStructRowProvider(IFBoolProperty inner, IUnrealClasses unrealClasses) 
+    : BasePropertyStructRowProvider<IFBoolProperty>(inner, unrealClasses)
 {
     public override void Draw()
     {
         ImGui.TableSetColumnIndex(0);
-        ImGui.Text($"{TypeName.GetPropertyTypeName(Property)}");
+        ImGui.Text($"{IUnrealClasses.GetPropertyTypeName(Property)}");
         // ImGui.Text($"{Property.ClassPrivate.Name}");
         ImGui.TableSetColumnIndex(1);
         ImGui.Text($"{Property.NamePrivate}");
@@ -48,13 +49,13 @@ public class BoolPropertyStructRowProvider(IFBoolProperty inner, TypeName typeNa
     }
 }
 
-public class BytePropertyStructRowProvider(IFByteProperty inner, TypeName typeName) 
-    : BasePropertyStructRowProvider<IFByteProperty>(inner, typeName)
+public class BytePropertyStructRowProvider(IFByteProperty inner, IUnrealClasses unrealClasses) 
+    : BasePropertyStructRowProvider<IFByteProperty>(inner, unrealClasses)
 {
     public override void Draw()
     {
         ImGui.TableSetColumnIndex(0);
-        var PropType = Property.Enum?.CppType ?? TypeName.GetPropertyTypeName(Property);
+        var PropType = Property.Enum?.CppType ?? IUnrealClasses.GetPropertyTypeName(Property);
         ImGui.Text($"{PropType}");
         // ImGui.Text($"{Property.ClassPrivate.Name}");
         ImGui.TableSetColumnIndex(1);
@@ -65,8 +66,8 @@ public class BytePropertyStructRowProvider(IFByteProperty inner, TypeName typeNa
     }   
 }
 
-public class EnumPropertyStructRowProvider(IFEnumProperty inner, TypeName typeName) 
-    : BasePropertyStructRowProvider<IFEnumProperty>(inner, typeName)
+public class EnumPropertyStructRowProvider(IFEnumProperty inner, IUnrealClasses unrealClasses) 
+    : BasePropertyStructRowProvider<IFEnumProperty>(inner, unrealClasses)
 {
     public override void Draw()
     {
@@ -90,16 +91,16 @@ public class StructPropertyViewer(nint baseAddress, IFProperty property)
         switch (Inner.Property.ClassPrivate.Name)
         {
             case "BoolProperty":
-                new BoolPropertyStructRowProvider( Factory.CreateFBoolProperty(property.Ptr), owner.TypeName).Draw();
+                new BoolPropertyStructRowProvider( Factory.CreateFBoolProperty(property.Ptr), owner.Context.UnrealClasses).Draw();
                 break;
             case "ByteProperty":
-                new BytePropertyStructRowProvider(Factory.CreateFByteProperty(property.Ptr), owner.TypeName).Draw();
+                new BytePropertyStructRowProvider(Factory.CreateFByteProperty(property.Ptr), owner.Context.UnrealClasses).Draw();
                 break;
             case "EnumProperty":
-                new EnumPropertyStructRowProvider(Factory.CreateFEnumProperty(property.Ptr), owner.TypeName).Draw();
+                new EnumPropertyStructRowProvider(Factory.CreateFEnumProperty(property.Ptr), owner.Context.UnrealClasses).Draw();
                 break;
             default:
-                new BasePropertyStructRowProvider<IFProperty>(property, owner.TypeName).Draw();
+                new BasePropertyStructRowProvider<IFProperty>(property, owner.Context.UnrealClasses).Draw();
                 break;
         }
         Inner.GetViewer(owner, window).Draw();
@@ -108,8 +109,8 @@ public class StructPropertyViewer(nint baseAddress, IFProperty property)
 
 public class StructListView(PropertyListView? parent, nint baseAddress, IUStruct value) : PropertyListView(parent)
 {
-    protected readonly nint BaseAddress = baseAddress;
-    protected readonly IUStruct Value = value;
+    private readonly nint BaseAddress = baseAddress;
+    private readonly IUStruct Value = value;
     
     private static UObjectWindowColumn[] TABLE_COLUMNS =
     [
@@ -137,7 +138,7 @@ public class StructListView(PropertyListView? parent, nint baseAddress, IUStruct
         var regionAvail = new ImVec2.__Internal();
         unsafe { ImGui.__Internal.GetContentRegionAvail((nint)(&regionAvail)); }
         var regionAvailable = new Vector2(regionAvail.x, regionAvail.y);
-        if (ImGui.BeginTable("##UEToolkitUnitTests", 4, (int)flags, ImGui.ImVec2ImVec2Nil(), 0))
+        if (ImGui.BeginTable($"##StructListView{BaseAddress:x}", 4, (int)flags, ImGui.ImVec2ImVec2Nil(), 0))
         {
             var columnFlags = (int)ImGuiTableColumnFlags.WidthFixed;
             foreach (var (Index, Column) in TABLE_COLUMNS.Select((x, i) => (i, x)))

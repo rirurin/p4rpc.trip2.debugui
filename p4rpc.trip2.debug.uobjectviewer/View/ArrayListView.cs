@@ -92,7 +92,7 @@ public class ArrayListView(PropertyListView? parent, nint baseAddress, IFArrayPr
     
     public override void Draw(App owner, UObjectWindow window)
     {
-        ImGui.Text($"Data Type is {owner.TypeName.GetPropertyTypeName(Value.Inner)}");
+        ImGui.Text($"Data Type is {owner.Context.UnrealClasses.GetPropertyTypeName(Value.Inner)}");
         ImGui.SameLine(0, 10);
         if (ImGui.Button($"Copy Last Element##{BaseAddress:x}", ImGui.ImVec2ImVec2Nil()))
         {

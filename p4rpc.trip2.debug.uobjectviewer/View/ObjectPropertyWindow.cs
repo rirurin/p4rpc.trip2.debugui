@@ -38,7 +38,9 @@ public class UObjectWindow : GUIWindow<App>
         if (Views.Count == 0)
         {
             var ObjectKey = new PropertyListKey(Object.Ptr, Object.ClassPrivate.NamePrivate.ToString());
-            Views.Add(ObjectKey, new StructListView(null, Object.Ptr, Object.ClassPrivate));
+            Views.Add(ObjectKey, Object.ClassPrivate.NamePrivate.ToString() == "DataTable"
+                ? new DataTableListView(null, Object.Ptr, Object.ClassPrivate)
+                : new StructListView(null, Object.Ptr, Object.ClassPrivate));
             CurrentView = ObjectKey;
         }
 

@@ -18,26 +18,26 @@ public interface IPropertyValueViewer
     
     public IFProperty Property { get; }
     
-    public TypeName TypeName { get; }
+    public IUnrealClasses UnrealClasses { get; }
     
     public void Draw();
 }
 
-public abstract class BasePropertyValueViewer<TProperty>(nint baseAddress, TProperty propertyTyped, TypeName typeName)
-    : IPropertyValueViewer where TProperty: IFProperty
+public abstract class BasePropertyValueViewer<TProperty>(nint baseAddress, TProperty propertyTyped, 
+    IUnrealClasses unrealClasses) : IPropertyValueViewer where TProperty: IFProperty
 {
     // start impl IPropertyValueViewer
     public nint BaseAddress => baseAddress;
     public IFProperty Property => PropertyTyped;
-    public TypeName TypeName => typeName;
+    public IUnrealClasses UnrealClasses => unrealClasses;
     public abstract void Draw();
     // end impl IPropertyValueViewer
     
     internal TProperty PropertyTyped => propertyTyped;
 }
 
-public class UntypedPropertyValueViewer(nint baseAddress, IFProperty propertyTyped, TypeName typeName)
-    : BasePropertyValueViewer<IFProperty>(baseAddress, propertyTyped, typeName)
+public class UntypedPropertyValueViewer(nint baseAddress, IFProperty propertyTyped, IUnrealClasses unrealClasses)
+    : BasePropertyValueViewer<IFProperty>(baseAddress, propertyTyped, unrealClasses)
 {
     public override void Draw()
     {
@@ -54,8 +54,8 @@ public class UntypedPropertyValueViewer(nint baseAddress, IFProperty propertyTyp
     }
 }
 
-public class BoolPropertyValueViewer(nint baseAddress, IFBoolProperty propertyTyped, TypeName typeName) 
-    : BasePropertyValueViewer<IFBoolProperty>(baseAddress, propertyTyped, typeName)
+public class BoolPropertyValueViewer(nint baseAddress, IFBoolProperty propertyTyped, IUnrealClasses unrealClasses) 
+    : BasePropertyValueViewer<IFBoolProperty>(baseAddress, propertyTyped, unrealClasses)
 {
     public override void Draw()
     {
@@ -71,8 +71,8 @@ public class BoolPropertyValueViewer(nint baseAddress, IFBoolProperty propertyTy
     }
 }
 
-public class BytePropertyValueViewer(nint baseAddress, IFByteProperty propertyTyped, TypeName typeName) 
-    : BasePropertyValueViewer<IFByteProperty>(baseAddress, propertyTyped, typeName)
+public class BytePropertyValueViewer(nint baseAddress, IFByteProperty propertyTyped, IUnrealClasses unrealClasses) 
+    : BasePropertyValueViewer<IFByteProperty>(baseAddress, propertyTyped, unrealClasses)
 {
     public override void Draw()
     {
@@ -123,8 +123,8 @@ public class BytePropertyValueViewer(nint baseAddress, IFByteProperty propertyTy
     }
 }
 
-public class Int8PropertyValueViewer(nint baseAddress, IFProperty propertyTyped, TypeName typeName)
-    : BasePropertyValueViewer<IFProperty>(baseAddress, propertyTyped, typeName)
+public class Int8PropertyValueViewer(nint baseAddress, IFProperty propertyTyped, IUnrealClasses unrealClasses)
+    : BasePropertyValueViewer<IFProperty>(baseAddress, propertyTyped, unrealClasses)
 {
     public override void Draw()
     {
@@ -141,8 +141,8 @@ public class Int8PropertyValueViewer(nint baseAddress, IFProperty propertyTyped,
     }
 }
 
-public class Int16PropertyValueViewer(nint baseAddress, IFProperty propertyTyped, TypeName typeName)
-    : BasePropertyValueViewer<IFProperty>(baseAddress, propertyTyped, typeName)
+public class Int16PropertyValueViewer(nint baseAddress, IFProperty propertyTyped, IUnrealClasses unrealClasses)
+    : BasePropertyValueViewer<IFProperty>(baseAddress, propertyTyped, unrealClasses)
 {
     public override void Draw()
     {
@@ -159,8 +159,8 @@ public class Int16PropertyValueViewer(nint baseAddress, IFProperty propertyTyped
     }
 }
 
-public class IntPropertyValueViewer(nint baseAddress, IFProperty propertyTyped, TypeName typeName)
-    : BasePropertyValueViewer<IFProperty>(baseAddress, propertyTyped, typeName)
+public class IntPropertyValueViewer(nint baseAddress, IFProperty propertyTyped, IUnrealClasses unrealClasses)
+    : BasePropertyValueViewer<IFProperty>(baseAddress, propertyTyped, unrealClasses)
 {
     public override void Draw()
     {
@@ -175,8 +175,8 @@ public class IntPropertyValueViewer(nint baseAddress, IFProperty propertyTyped, 
     }
 }
 
-public class UInt16PropertyValueViewer(nint baseAddress, IFProperty propertyTyped, TypeName typeName)
-    : BasePropertyValueViewer<IFProperty>(baseAddress, propertyTyped, typeName)
+public class UInt16PropertyValueViewer(nint baseAddress, IFProperty propertyTyped, IUnrealClasses unrealClasses)
+    : BasePropertyValueViewer<IFProperty>(baseAddress, propertyTyped, unrealClasses)
 {
     public override void Draw()
     {
@@ -193,8 +193,8 @@ public class UInt16PropertyValueViewer(nint baseAddress, IFProperty propertyType
     }
 }
 
-public class FloatPropertyValueViewer(nint baseAddress, IFProperty propertyTyped, TypeName typeName)
-    : BasePropertyValueViewer<IFProperty>(baseAddress, propertyTyped, typeName)
+public class FloatPropertyValueViewer(nint baseAddress, IFProperty propertyTyped, IUnrealClasses unrealClasses)
+    : BasePropertyValueViewer<IFProperty>(baseAddress, propertyTyped, unrealClasses)
 {
     public override void Draw()
     {
@@ -209,8 +209,8 @@ public class FloatPropertyValueViewer(nint baseAddress, IFProperty propertyTyped
     }
 }
 
-public class DoublePropertyValueViewer(nint baseAddress, IFProperty propertyTyped, TypeName typeName)
-    : BasePropertyValueViewer<IFProperty>(baseAddress, propertyTyped, typeName)
+public class DoublePropertyValueViewer(nint baseAddress, IFProperty propertyTyped, IUnrealClasses unrealClasses)
+    : BasePropertyValueViewer<IFProperty>(baseAddress, propertyTyped, unrealClasses)
 {
     public override void Draw()
     {
@@ -228,7 +228,8 @@ public class NamePropertyValueViewer : BasePropertyValueViewer<IFProperty>
 {
     protected ResizableTextInput TextInput;
 
-    public NamePropertyValueViewer(nint baseAddress, IFProperty propertyTyped, TypeName typeName) : base(baseAddress, propertyTyped, typeName)
+    public NamePropertyValueViewer(nint baseAddress, IFProperty propertyTyped, IUnrealClasses unrealClasses) 
+        : base(baseAddress, propertyTyped, unrealClasses)
     {
         TextInput = new($"##Name @ 0x{BaseAddress:X}");
         unsafe { TextInput.ReplaceBuffer(((FName*)(BaseAddress + PropertyTyped.Offset_Internal))->ToString() + '\0'); }
@@ -251,7 +252,7 @@ public class StringPropertyValueViewer : BasePropertyValueViewer<IFProperty>
     private IUnrealMemory UnrealMemory;
 
     public StringPropertyValueViewer(nint baseAddress, IUnrealStrings unrealStrings, IUnrealMemory unrealMemory, 
-        IFProperty propertyTyped, TypeName typeName) : base(baseAddress, propertyTyped, typeName)
+        IFProperty propertyTyped, IUnrealClasses unrealClasses) : base(baseAddress, propertyTyped, unrealClasses)
     {
         TextInput = new($"##String @ 0x{BaseAddress:X}");
         UnrealStrings = unrealStrings;
@@ -289,7 +290,7 @@ public class TextPropertyValueViewer : BasePropertyValueViewer<IFProperty>
     private IUnrealObjects UnrealObjects;
 
     public TextPropertyValueViewer(IntPtr baseAddress, IUnrealStrings unrealStrings, IUnrealMemory unrealMemory,
-        IFProperty property, TypeName typeName, IUnrealObjects unrealObjects) : base(baseAddress, property, typeName)
+        IFProperty property, IUnrealClasses unrealClasses, IUnrealObjects unrealObjects) : base(baseAddress, property, unrealClasses)
     {
         TextInput = new($"##Text @ 0x{BaseAddress:X}");
         UnrealStrings = unrealStrings;
@@ -316,8 +317,8 @@ public class TextPropertyValueViewer : BasePropertyValueViewer<IFProperty>
     }
 }
 
-public class StructPropertyValueViewer(nint baseAddress, IFStructProperty propertyTyped, TypeName typeName,
-    UObjectWindow window) : BasePropertyValueViewer<IFStructProperty>(baseAddress, propertyTyped, typeName)
+public class StructPropertyValueViewer(nint baseAddress, IFStructProperty propertyTyped, IUnrealClasses unrealClasses,
+    UObjectWindow window) : BasePropertyValueViewer<IFStructProperty>(baseAddress, propertyTyped, unrealClasses)
 {
     protected UObjectWindow Window => window;
     
@@ -337,8 +338,37 @@ public class StructPropertyValueViewer(nint baseAddress, IFStructProperty proper
     }
 }
 
-public class ObjectPropertyValueViewer(nint baseAddress, IUnrealFactory factory, App owner, IFObjectProperty propertyTyped, TypeName typeName)
-    : BasePropertyValueViewer<IFObjectProperty>(baseAddress, propertyTyped, typeName)
+public class DataTableRowPropertyValueViewer(nint baseAddress, IUnrealFactory factory, 
+    IFObjectProperty propertyTyped, IUnrealClasses unrealClasses, UObjectWindow window)
+    : BasePropertyValueViewer<IFObjectProperty>(baseAddress, propertyTyped, unrealClasses)
+{
+    private IUnrealFactory Factory = factory;
+    protected UObjectWindow Window => window;
+    
+    public override void Draw()
+    {
+        unsafe
+        {
+            var Pointer = *(nint*)(BaseAddress + PropertyTyped.Offset_Internal);
+            if (Pointer == nint.Zero)
+            {
+                ImGui.Text("NULL");
+                return;
+            }
+            if (ImGui.Button(
+                    $"View Row##{BaseAddress + PropertyTyped.Offset_Internal:X}", 
+                    ImGui.ImVec2ImVec2Nil()))
+            {
+                Window.AddView(
+                    new(Pointer, Window.UnrealClasses!.GetPropertyTypeName(PropertyTyped)), 
+                    new StructListView(Window.GetCurrentView(), Pointer, PropertyTyped.PropertyClass));
+            }
+        }
+    }
+}
+
+public class ObjectPropertyValueViewer(nint baseAddress, IUnrealFactory factory, App owner, IFObjectProperty propertyTyped, IUnrealClasses unrealClasses)
+    : BasePropertyValueViewer<IFObjectProperty>(baseAddress, propertyTyped, unrealClasses)
 {
     private IUnrealFactory Factory = factory;
     private App Owner = owner;
@@ -363,8 +393,8 @@ public class ObjectPropertyValueViewer(nint baseAddress, IUnrealFactory factory,
     }
 }
 
-public class EnumPropertyValueViewer(nint baseAddress, IFEnumProperty propertyTyped, TypeName typeName) 
-    : BasePropertyValueViewer<IFEnumProperty>(baseAddress, propertyTyped, typeName)
+public class EnumPropertyValueViewer(nint baseAddress, IFEnumProperty propertyTyped, IUnrealClasses unrealClasses) 
+    : BasePropertyValueViewer<IFEnumProperty>(baseAddress, propertyTyped, unrealClasses)
 {
     public override void Draw()
     {
@@ -435,8 +465,8 @@ public class EnumPropertyValueViewer(nint baseAddress, IFEnumProperty propertyTy
     }
 }
 
-public class ArrayPropertyValueViewer(nint baseAddress, IFArrayProperty propertyTyped, TypeName typeName, 
-    UObjectWindow window) : BasePropertyValueViewer<IFArrayProperty>(baseAddress, propertyTyped, typeName)
+public class ArrayPropertyValueViewer(nint baseAddress, IFArrayProperty propertyTyped, IUnrealClasses unrealClasses, 
+    UObjectWindow window) : BasePropertyValueViewer<IFArrayProperty>(baseAddress, propertyTyped, unrealClasses)
 {
     protected UObjectWindow Window => window;
     
@@ -462,8 +492,8 @@ public class ArrayPropertyValueViewer(nint baseAddress, IFArrayProperty property
     }
 }
 
-public class MapPropertyValueViewer(nint baseAddress, IFMapProperty propertyTyped, TypeName typeName, 
-    UObjectWindow window) : BasePropertyValueViewer<IFMapProperty>(baseAddress, propertyTyped, typeName)
+public class MapPropertyValueViewer(nint baseAddress, IFMapProperty propertyTyped, IUnrealClasses unrealClasses, 
+    UObjectWindow window) : BasePropertyValueViewer<IFMapProperty>(baseAddress, propertyTyped, unrealClasses)
 {
     protected UObjectWindow Window => window;
     

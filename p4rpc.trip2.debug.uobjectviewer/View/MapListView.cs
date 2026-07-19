@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using imgui::p4rpc.trip2.ImGui;
+using RyoTune.Reloaded;
 using UE.Toolkit.Core.Types.Unreal.Common.DynamicMap;
 using UE.Toolkit.Core.Types.Unreal.Factories;
 using ImGui = imgui::p4rpc.trip2.ImGui.ImGui;
@@ -82,18 +83,18 @@ public class MapListView(PropertyListView? parent, nint baseAddress, IFMapProper
     
     public override void Draw(App owner, UObjectWindow window)
     {
-        var KeyType = owner.TypeName.GetPropertyTypeName(Value.KeyProp);
-        var ValueType = owner.TypeName.GetPropertyTypeName(Value.ValueProp);
+        var KeyType = owner.Context.UnrealClasses.GetPropertyTypeName(Value.KeyProp);
+        var ValueType = owner.Context.UnrealClasses.GetPropertyTypeName(Value.ValueProp);
         ImGui.Text($"Key is {KeyType}, Value is {ValueType}");
         const ImGuiTableFlags flags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg;
         var regionAvail = new ImVec2.__Internal();
         unsafe { ImGui.__Internal.GetContentRegionAvail((nint)(&regionAvail)); }
         var regionAvailable = new Vector2(regionAvail.x, regionAvail.y);
-        if (ImGui.BeginTable("##UEToolkitUnitTests", 3, (int)flags, ImGui.ImVec2ImVec2Nil(), 0))
+        if (MapKeyFactory.CreateMapKey(Value, factory, out var MapKey))
         {
-            // var columnFlags = (int)ImGuiTableColumnFlags.WidthFixed;
-            if (MapKeyFactory.CreateMapKey(Value, factory, out var MapKey))
+            if (ImGui.BeginTable($"##MapListView{BaseAddress:x}", 3, (int)flags, ImGui.ImVec2ImVec2Nil(), 0))
             {
+                // var columnFlags = (int)ImGuiTableColumnFlags.WidthFixed;
                 var columnFlags = 0;
                 foreach (var (Index, Column) in TABLE_COLUMNS.Select((x, i) => (i, x)))
                     ImGui.TableSetupColumn(Column.Name, columnFlags, Column.GetWidth(regionAvailable), (uint)Index);
@@ -107,12 +108,12 @@ public class MapListView(PropertyListView? parent, nint baseAddress, IFMapProper
                         new MapPropertyViewer(entryAddress - MapKey.DynSizeOf(), Value).Draw(owner, window);   
                     }
                 }
-                ImGui.EndTable();       
+                ImGui.EndTable();
             }
-            else
-            {
-                ImGui.Text($"Maps with the key type {Value.KeyProp.ClassPrivate.Name} are not currently supported");
-            }
+        }
+        else
+        {
+            ImGui.Text($"Maps with the key type {Value.KeyProp.ClassPrivate.Name} are not currently supported");   
         }
     }
     
