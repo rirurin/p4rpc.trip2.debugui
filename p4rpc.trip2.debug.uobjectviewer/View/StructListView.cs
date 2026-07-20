@@ -107,24 +107,22 @@ public class StructPropertyViewer(nint baseAddress, IFProperty property)
     }
 }
 
-public class StructListView(PropertyListView? parent, nint baseAddress, IUStruct value) : PropertyListView(parent)
+public class StructListViewBase<TUStruct>(PropertyListView? parent, nint baseAddress, TUStruct value) 
+    : PropertyListView(parent) where TUStruct : IUStruct
 {
-    private readonly nint BaseAddress = baseAddress;
-    private readonly IUStruct Value = value;
+    protected readonly nint BaseAddress = baseAddress;
+    protected readonly TUStruct Value = value;
     
-    private static UObjectWindowColumn[] TABLE_COLUMNS =
+    protected static UObjectWindowColumn[] TABLE_COLUMNS =
     [
         new("Type", _ => 0),
         new("Name", _ => 0),
         new("Offset", _ => 80),
         new("Value", _ => 400),
-        // new("Offset", w => w.X / 10),
-        // new("Value", w => w.X / 2),
     ];
 
-    public override void Draw(App owner, UObjectWindow window)
+    private List<IFProperty> GetPropertyList(App owner)
     {
-        var Factory = owner.Context.UnrealFactory;
         var PropertyList = Value.PropertyLink.ToList();
         PropertyList.Sort((x, y) =>
         {
@@ -134,11 +132,22 @@ public class StructListView(PropertyListView? parent, nint baseAddress, IUStruct
             var OffsetCheck = bx.Offset_Internal.CompareTo(by.Offset_Internal);
             return OffsetCheck == 0 ? bx.FieldMask.CompareTo(by.FieldMask) : OffsetCheck;
         });
-        const ImGuiTableFlags flags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg;
+        return PropertyList;
+    }
+
+    protected Vector2 GetRegionAvailable()
+    {
         var regionAvail = new ImVec2.__Internal();
         unsafe { ImGui.__Internal.GetContentRegionAvail((nint)(&regionAvail)); }
-        var regionAvailable = new Vector2(regionAvail.x, regionAvail.y);
-        if (ImGui.BeginTable($"##StructListView{BaseAddress:x}", 4, (int)flags, ImGui.ImVec2ImVec2Nil(), 0))
+        return new Vector2(regionAvail.x, regionAvail.y);
+    }
+
+    public override void Draw(App owner, UObjectWindow window)
+    {
+        var PropertyList = GetPropertyList(owner);
+        const ImGuiTableFlags flags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg;
+        var regionAvailable = GetRegionAvailable();
+        if (ImGui.BeginTable($"##StructListView{BaseAddress:x}", TABLE_COLUMNS.Length, (int)flags, ImGui.ImVec2ImVec2Nil(), 0))
         {
             var columnFlags = (int)ImGuiTableColumnFlags.WidthFixed;
             foreach (var (Index, Column) in TABLE_COLUMNS.Select((x, i) => (i, x)))
@@ -154,3 +163,6 @@ public class StructListView(PropertyListView? parent, nint baseAddress, IUStruct
 
     public override PropertyListKey GetKey() => new(BaseAddress, Value.NamePrivate.ToString());
 }
+
+public class StructListView(PropertyListView? parent, nint baseAddress, IUStruct value) 
+    : StructListViewBase<IUStruct>(parent, baseAddress, value);

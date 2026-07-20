@@ -10,7 +10,7 @@ namespace p4rpc.trip2.debug.uobjectviewer;
 
 public class Context(IModLoader modLoader, IReloadedHooks hooks, IModConfig modConfig, ISharedScans sharedScans, 
     IUnrealObjects unrealObjects, IUnrealFactory unrealFactory, IGUIState guiState, IUnrealStrings unrealStrings,
-    IUnrealMemory unrealMemory, IUnrealClasses unrealClasses)
+    IUnrealMemory unrealMemory, IUnrealClasses unrealClasses, IUnrealMethods unrealMethods)
 {
     internal IModLoader ModLoader { get; init; } = modLoader;
     internal IReloadedHooks Hooks { get; init; } = hooks;
@@ -22,4 +22,5 @@ public class Context(IModLoader modLoader, IReloadedHooks hooks, IModConfig modC
     internal IUnrealStrings UnrealStrings { get; init; } = unrealStrings;
     internal IUnrealMemory UnrealMemory { get; init; } = unrealMemory;
     internal IUnrealClasses UnrealClasses { get; init; } = unrealClasses;
+    internal IUnrealMethods UnrealMethods { get; init; } = unrealMethods;
 }

@@ -120,7 +120,7 @@ public class ArrayListView(PropertyListView? parent, nint baseAddress, IFArrayPr
         var regionAvail = new ImVec2.__Internal();
         unsafe { ImGui.__Internal.GetContentRegionAvail((nint)(&regionAvail)); }
         var regionAvailable = new Vector2(regionAvail.x, regionAvail.y);
-        if (ImGui.BeginTable($"##ArrayTable{BaseAddress:x}", 3, (int)flags, 
+        if (ImGui.BeginTable($"##ArrayTable{BaseAddress:x}", TABLE_COLUMNS.Length, (int)flags, 
                 ImGui.ImVec2ImVec2Nil(), 0))
         {
             // var columnFlags = (int)ImGuiTableColumnFlags.WidthFixed;

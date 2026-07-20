@@ -295,6 +295,15 @@ public class AddScriptStruct(WeakReference<App> owner) : UnitTest(owner)
     protected override string Reason => "Failed...";
 }
 
+/*
+public class CallMethodProcessEvent(WeakReference<App> owner) : UnitTest(owner)
+{
+    protected override string Name => "Call Method (ProcessEvent)";
+    protected override bool Passed => Owner.TryGetTarget(out var owner) && owner.AddScriptStructPassed;
+    protected override string Reason => "Failed...";
+}
+*/
+
 public class AppWindow : GUIWindow<App>
 {
     public override string Title => "Unreal Toolkit Unit Tests";
@@ -333,7 +342,7 @@ public class AppWindow : GUIWindow<App>
     public override void Draw(App owner)
     {
         const ImGuiTableFlags flags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg;
-        if (ImGui.BeginTable("##UEToolkitUnitTests", 3, (int)flags, ImGui.ImVec2ImVec2Nil(), 0))
+        if (ImGui.BeginTable("##UEToolkitUnitTests", TABLE_COLUMNS.Length, (int)flags, ImGui.ImVec2ImVec2Nil(), 0))
         {
             foreach (var (Index, Column) in TABLE_COLUMNS.Select((x, i) => (i, x)))
                 ImGui.TableSetupColumn(Column, 0, 0, (uint)Index);

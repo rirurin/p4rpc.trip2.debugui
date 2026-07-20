@@ -92,7 +92,7 @@ public class MapListView(PropertyListView? parent, nint baseAddress, IFMapProper
         var regionAvailable = new Vector2(regionAvail.x, regionAvail.y);
         if (MapKeyFactory.CreateMapKey(Value, factory, out var MapKey))
         {
-            if (ImGui.BeginTable($"##MapListView{BaseAddress:x}", 3, (int)flags, ImGui.ImVec2ImVec2Nil(), 0))
+            if (ImGui.BeginTable($"##MapListView{BaseAddress:x}", TABLE_COLUMNS.Length, (int)flags, ImGui.ImVec2ImVec2Nil(), 0))
             {
                 // var columnFlags = (int)ImGuiTableColumnFlags.WidthFixed;
                 var columnFlags = 0;

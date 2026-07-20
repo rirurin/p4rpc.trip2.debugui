@@ -35,7 +35,7 @@ public class DataTablePropertyViewer(nint baseAddress, IFMapProperty property)
     }
 }
 
-public class DataTableListView : PropertyListView
+public class DataTableListView : PropertyListView, IDisposable
 {
     private readonly nint BaseAddress;
     private readonly IUStruct Value;
@@ -44,11 +44,14 @@ public class DataTableListView : PropertyListView
     private IFMapProperty? Map;
     private bool? CreatedMapProperty;
 
-    public DataTableListView(PropertyListView? parent, nint baseAddress, IUStruct value) : base(parent)
+    private IUnrealMemory Memory;
+
+    public DataTableListView(PropertyListView? parent, nint baseAddress, IUStruct value, IUnrealMemory memory) : base(parent)
     {
         BaseAddress = baseAddress;
         Value = value;
         RowStruct = Value.PropertyLink.FirstOrDefault(x => x.NamePrivate == "RowStruct");
+        Memory = memory;
     }
 
     private static UObjectWindowColumn[] TABLE_COLUMNS =
@@ -94,7 +97,7 @@ public class DataTableListView : PropertyListView
         var regionAvailable = new Vector2(regionAvail.x, regionAvail.y);
         if (MapKeyFactory.CreateMapKey(Map, Factory, out var MapKey))
         {
-            if (ImGui.BeginTable($"##DataTableListView{BaseAddress:x}", 3, (int)flags, ImGui.ImVec2ImVec2Nil(), 0))
+            if (ImGui.BeginTable($"##DataTableListView{BaseAddress:x}", TABLE_COLUMNS.Length, (int)flags, ImGui.ImVec2ImVec2Nil(), 0))
             {
                 var columnFlags = 0;
                 foreach (var (Index, Column) in TABLE_COLUMNS.Select((x, i) => (i, x)))
@@ -121,4 +124,30 @@ public class DataTableListView : PropertyListView
     public override string ToString() => $"{GetKey():X}";
 
     public override PropertyListKey GetKey() => new(BaseAddress, Value.NamePrivate.ToString());
+    
+    #region IDisposable Interface
+
+    private bool IsDisposed;
+
+    protected virtual void Dispose(bool _disposing)
+    {
+        if (!IsDisposed)
+        {
+            // if (disposing)
+            Memory.Free(Map.KeyProp.Ptr);
+            Memory.Free(Map.ValueProp.Ptr);
+            Memory.Free(Map.Ptr);
+            IsDisposed = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    ~DataTableListView() => Dispose(false);
+
+    #endregion
 }
