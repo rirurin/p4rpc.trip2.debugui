@@ -6,7 +6,10 @@ using ImGui = imgui::p4rpc.trip2.ImGui.ImGui;
 
 using p4rpc.trip2.debugui.Interfaces;
 using RyoTune.Reloaded;
+using UE.Toolkit.Core.Types.Interfaces;
+using UE.Toolkit.Core.Types.Unreal.Common.FunctionParam;
 using UE.Toolkit.Core.Types.Unreal.Factories.Interfaces;
+using UE.Toolkit.Core.Types.Unreal.UE5_4_4;
 
 namespace p4rpc.trip2.debug.testtoolkit;
 
@@ -41,9 +44,19 @@ public enum AddPropertyError
     CouldNotCreateStringProperty = 1 << 1,
 }
 
+public enum CallMethodError
+{
+    None,
+    CouldNotFindSkeletalMesh,
+    NullReturnObject,
+    WrongSocketIndex,
+    // from ProcessEventResult
+    CouldNotFindFunction,
+    ParameterTypeMismatch,
+}
+
 public class App : GUIApp
 {
-
     internal Context Context { get; private init; }
 
     internal ObjectLogError ObjectLogError { get; private set; }
@@ -51,13 +64,22 @@ public class App : GUIApp
     private const int ALLOC_SIZE = 0x80;
     public bool CheckFMemory;
     internal MemoryError MemoryError { get; private set; } = MemoryError.TestResultsPending;
+    
     private const int EXTENSION_SIZE = 0x40;
     public bool CheckStructExtension;
     internal StructExtensionError StructExtensionError { get; private set; } = StructExtensionError.DidNotCallConstructor;
+    
     public bool CheckAddProperty;
     internal AddPropertyError AddPropertyError { get; private set; }
+    
     public bool CheckAddScriptStruct;
     public bool AddScriptStructPassed;
+    
+    // public bool CheckCallBlueprint;
+    public int CallBlueprintAttempts;
+    public float CallBlueprintTime;
+    public readonly string AppId;
+    public CallMethodError CalledBlueprintMethod = CallMethodError.CouldNotFindSkeletalMesh;
     
     
     public override string Name => "UE Toolkit Unit Testing";
@@ -112,7 +134,72 @@ public class App : GUIApp
             MemoryError = MemoryError.None;
             Context.UnrealMemory.Free(Heap);
         }
+
+        if (CallBlueprintTime <= 0 && CalledBlueprintMethod != CallMethodError.None)
+        {
+            CallBlueprintTime = 1 << CallBlueprintAttempts;
+            CallBlueprintAttempts++;
+            var SK_Mesh = GetSkeletalMeshObject();
+            if (SK_Mesh == null) return;
+            var SocketName = GetSocketName();
+            int SocketIndex;
+            unsafe
+            {
+                var Result = SK_Mesh.ProcessEvent("FindSocketAndIndex", [
+                    new NameParam(new(&SocketName)),
+                    new IntParam(new(&SocketIndex))
+                ], out var Return);
+                if (Result != ProcessEventResult.Success)
+                {
+                    CalledBlueprintMethod = Result switch
+                    {
+                        ProcessEventResult.CouldNotFindFunction => CallMethodError.CouldNotFindFunction,
+                        ProcessEventResult.ParameterTypeMismatch => CallMethodError.ParameterTypeMismatch,
+                        _ => CalledBlueprintMethod
+                    };
+                    return;
+                }
+                if (Return == null)
+                {
+                    CalledBlueprintMethod = CallMethodError.NullReturnObject;
+                    return;
+                }
+                var ReturnObject = Context.UnrealFactory.CreateUObject(((ObjectParam)Return).Value);
+                if (SocketIndex != GetExpectedSocketIndex())
+                {
+                    CalledBlueprintMethod = CallMethodError.WrongSocketIndex;
+                    return;
+                }
+                Log.Debug($"FindSocketAndIndex({SocketName}) Result: {Result}, Socket Index: {SocketIndex}, Return value: 0x{ReturnObject.Ptr:x}");
+                CalledBlueprintMethod = CallMethodError.None;
+            }
+        }
+        else CallBlueprintTime -= DeltaTime;
     }
+
+    private IUObject? GetSkeletalMeshObject()
+    {
+        var TargetMesh = AppId switch
+        {
+            "p3r.exe" => "SK_PC0001_Title_00",
+            _ => "SKM_Quinn_Simple"
+        };
+        return Context.UnrealObjects.FindObjectByName(TargetMesh, "SkeletalMesh");
+    }
+
+    private FName GetSocketName()
+        => new(AppId switch
+        {
+            "p3r.exe" => "Soc_L_AttachUpLeg00_00", // P3R (SKEL_Human): Socket 21
+            _ => "foot_l_Socket" // Third Person Sample: Socket 2
+        });
+
+    private int GetExpectedSocketIndex()
+        => AppId switch
+        {
+            "p3r.exe" => 21,
+            _ => 2
+        };
 
     private bool GetUSkeletalMeshSize(out nint SizeOf)
     {
@@ -216,6 +303,8 @@ public class App : GUIApp
         
         AddPropertyError = AddPropertyError.CouldNotCreateIntProperty | AddPropertyError.CouldNotCreateStringProperty;
 
+        AppId = Context.ModLoader.GetAppConfig().AppId;
+
         if (GetUStaticMeshSize(out var sizeOf))
         {
             Context.UnrealClasses.AddExtension<UStaticMesh>(EXTENSION_SIZE, x =>
@@ -295,14 +384,13 @@ public class AddScriptStruct(WeakReference<App> owner) : UnitTest(owner)
     protected override string Reason => "Failed...";
 }
 
-/*
 public class CallMethodProcessEvent(WeakReference<App> owner) : UnitTest(owner)
 {
-    protected override string Name => "Call Method (ProcessEvent)";
-    protected override bool Passed => Owner.TryGetTarget(out var owner) && owner.AddScriptStructPassed;
-    protected override string Reason => "Failed...";
+    protected override string Name => "Call Blueprint Method";
+    protected override bool Passed => Owner.TryGetTarget(out var owner) && owner.CalledBlueprintMethod == CallMethodError.None;
+    protected override string Reason => Owner.TryGetTarget(out var owner) ? 
+        $"{owner.CalledBlueprintMethod.ToString()} (retry in {owner.CallBlueprintTime:F2} sec)" : "N/A";
 }
-*/
 
 public class AppWindow : GUIWindow<App>
 {
@@ -315,7 +403,7 @@ public class AppWindow : GUIWindow<App>
     {
         Tests.AddRange([
             new ObjectLogging(Owner), new MemoryTest(Owner), new StructExtensionTest(Owner),
-            new AddPropertiesTest(Owner), new AddScriptStruct(Owner)
+            new AddPropertiesTest(Owner), new AddScriptStruct(Owner), new CallMethodProcessEvent(Owner),
         ]);
     }
 
@@ -329,15 +417,7 @@ public class AppWindow : GUIWindow<App>
         }
     }
     
-    public override Vector2 StartPos
-    {
-        get
-        {
-            if (!Owner.TryGetTarget(out var App)) return Vector2.Zero;
-            var SurfaceSize = App.State!.GetSurfaceSize();
-            return new Vector2(15, 30);
-        }
-    }
+    public override Vector2 StartPos => Owner.TryGetTarget(out _) ? new Vector2(15, 30) : Vector2.Zero;
 
     public override void Draw(App owner)
     {

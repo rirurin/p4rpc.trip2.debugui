@@ -14,10 +14,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "p4rpc.trip2.ImGui", "p4rpc.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "p4rpc.trip2.debug.testtoolkit", "p4rpc.trip2.debug.testtoolkit\p4rpc.trip2.debug.testtoolkit.csproj", "{9D29A327-C4E2-41A2-A8B9-8D1B353F828C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UE.Toolkit.Core", "..\UE.Toolkit\UE.Toolkit.Core\UE.Toolkit.Core.csproj", "{EE09293D-F6F9-4B94-813D-2E87FF6CF8E2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UE.Toolkit.Interfaces", "..\UE.Toolkit\UE.Toolkit.Interfaces\UE.Toolkit.Interfaces.csproj", "{BAA54893-3B1F-4644-8FCF-50F7AE07E17D}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,13 +48,5 @@ Global
 		{9D29A327-C4E2-41A2-A8B9-8D1B353F828C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D29A327-C4E2-41A2-A8B9-8D1B353F828C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D29A327-C4E2-41A2-A8B9-8D1B353F828C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EE09293D-F6F9-4B94-813D-2E87FF6CF8E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EE09293D-F6F9-4B94-813D-2E87FF6CF8E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EE09293D-F6F9-4B94-813D-2E87FF6CF8E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EE09293D-F6F9-4B94-813D-2E87FF6CF8E2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BAA54893-3B1F-4644-8FCF-50F7AE07E17D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BAA54893-3B1F-4644-8FCF-50F7AE07E17D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BAA54893-3B1F-4644-8FCF-50F7AE07E17D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BAA54893-3B1F-4644-8FCF-50F7AE07E17D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

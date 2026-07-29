@@ -59,11 +59,13 @@ public class ObjectListView(PropertyListView? parent, nint baseAddress, IUClass 
     {
         var FunctionList = Value.GetFunctions();
         const ImGuiTableFlags flags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg;
+        /*
         if (ImGui.Button($"METHOD TEST##{BaseAddress:x}", ImGui.ImVec2ImVec2Nil()))
         {
             var Object = Factory.CreateUObject(BaseAddress);
-            Log.Debug($"Object: 0x{BaseAddress:x}");
-            var SocketName = new FName("Soc_L_AttachUpLeg00_00");
+            Log.Debug($"Object: 0x{BaseAddress:x}, Class: {Object.ClassPrivate.NamePrivate}");
+            // var SocketName = new FName("Soc_L_AttachUpLeg00_00"); // P3R: Socket 21
+            var SocketName = new FName("foot_l_Socket"); // Third Person Sample: Socket 2
             int SocketIndex;
             unsafe
             {
@@ -72,10 +74,10 @@ public class ObjectListView(PropertyListView? parent, nint baseAddress, IUClass 
                     new IntParam(new(&SocketIndex))
                 ], out var Return);
                 var ReturnObject = Factory.CreateUObject(((ObjectParam)Return).Value);
-                Log.Debug($"Result: {Result}, Socket Index: {SocketIndex}, Return value: 0x{ReturnObject.Ptr:x}"); // expecting 9 + 10
-                
+                Log.Debug($"Result: {Result}, Socket Index: {SocketIndex}, Return value: 0x{ReturnObject.Ptr:x}");
             }
         }
+        */
         var regionAvailable = GetRegionAvailable();
         if (ImGui.BeginTable($"##StructListView{BaseAddress:x}", METHOD_COLUMNS.Length, (int)flags, ImGui.ImVec2ImVec2Nil(), 0))
         {
@@ -113,5 +115,54 @@ public class ObjectListView(PropertyListView? parent, nint baseAddress, IUClass 
             }
             ImGui.EndTable();
         }
+    }
+}
+
+public class UObjectDynamic
+{
+    public IUObject Inner { get; }
+    protected Dictionary<string, int> FieldOffsets;
+
+    public UObjectDynamic(IUObject inner) {
+        Inner = inner;
+        FieldOffsets = Inner.ClassPrivate.PropertyLink
+            .Select(x => (x.NamePrivate, x.Offset_Internal)).ToDictionary();
+    }
+}
+
+public class UInputComponent(IUObject inner) : UObjectDynamic(inner);
+
+public class APlayerController(IUObject inner) : UObjectDynamic(inner);
+
+public class AInputManager(IUObject inner) : APlayerController(inner) {
+
+    public UObjectDynamic FindSocketAndIndex(FName SocketName, ref int SocketIndex, UObjectDynamic Test)
+    {
+        unsafe
+        {
+            _ = Inner.ProcessEvent("FindSocketAndIndex", [
+                new NameParam(new(&SocketName)),
+                new IntParam(new((int*)Unsafe.AsPointer(ref SocketIndex)))
+            ], out var Return);
+            return new(Inner.GetFactory().CreateUObject(((ObjectParam)Return).Value));
+        }   
+    }
+
+    public unsafe UInputComponent mpDefaultInputComponent
+    {
+        get => new(Inner.GetFactory().CreateUObject(*(nint*)(Inner.Ptr + FieldOffsets["mpDefaultInputComponent"])));
+        set => *(nint*)(Inner.Ptr + FieldOffsets["mpDefaultInputComponent"]) = value.Inner.Ptr;
+    }
+
+    public unsafe UInputComponent mpCurrentInputComponent
+    {
+        get => new(Inner.GetFactory().CreateUObject(*(nint*)(Inner.Ptr + FieldOffsets["mpCurrentInputComponent"])));
+        set => *(nint*)(Inner.Ptr + FieldOffsets["mpCurrentInputComponent"]) = value.Inner.Ptr;
+    }
+
+    public unsafe float InputYawScale 
+    {
+        get => *(float*)(Inner.Ptr + FieldOffsets["InputYawScale"]);
+        set => *(float*)(Inner.Ptr + FieldOffsets["InputYawScale"]) = value;
     }
 }
