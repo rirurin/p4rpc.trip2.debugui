@@ -6,6 +6,7 @@ using p4rpc.trip2.debugui.Interfaces;
 using RyoTune.Reloaded;
 using UE.Toolkit.Core.Types.Unreal.Factories;
 using UE.Toolkit.Core.Types.Unreal.Factories.Interfaces;
+using UE.Toolkit.Core.Types.Unreal.UE5_4_4;
 using UE.Toolkit.Interfaces;
 
 namespace p4rpc.trip2.debug.uobjectviewer.View;
@@ -29,18 +30,24 @@ public class UObjectWindow : GUIWindow<App>
         UnrealFactory ??= owner.Context.UnrealFactory;
         UnrealMemory ??= owner.Context.UnrealMemory;
         UnrealClasses ??= owner.Context.UnrealClasses;
+        
         if (!owner.AllObjects.ContainsKey(Object.Ptr))
         {
+            Log.Debug($"Destroy 0x{Object.Ptr:x}");
             Close();
             return;
         }
         
         if (Views.Count == 0)
         {
-            var ObjectKey = new PropertyListKey(Object.Ptr, Object.ClassPrivate.NamePrivate.ToString());
-            Views.Add(ObjectKey, Object.ClassPrivate.NamePrivate.ToString() == "DataTable"
-                ? new DataTableListView(null, Object.Ptr, Object.ClassPrivate, UnrealMemory)
-                : new ObjectListView(null, Object.Ptr, Object.ClassPrivate, UnrealFactory, UnrealClasses));
+            var TypeName = Object.ClassPrivate.NamePrivate.ToString();
+            var ObjectKey = new PropertyListKey(Object.Ptr, TypeName);
+            PropertyListView ViewWindow = TypeName switch
+            {
+                "DataTable" => new DataTableListView(null, Object.Ptr, Object.ClassPrivate, UnrealMemory),
+                _ => new ObjectListView(null, Object.Ptr, Object.ClassPrivate, UnrealFactory, UnrealClasses)
+            };
+            Views.Add(ObjectKey, ViewWindow);
             CurrentView = ObjectKey;
         }
 

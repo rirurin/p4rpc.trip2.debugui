@@ -1,4 +1,5 @@
 ﻿extern alias imgui;
+using System.Collections.Concurrent;
 using imgui::p4rpc.trip2.ImGui;
 using ImGui = imgui::p4rpc.trip2.ImGui.ImGui;
 
@@ -23,6 +24,8 @@ public class App : GUIApp
     internal readonly Dictionary<nint, IUObject> VisibleObjects;
 
     internal readonly Dictionary<nint, IUObject> AllObjects;
+
+    internal readonly object ObjectLock = new();
     
     internal ObjectSearch ObjectSearch { get; }
 
@@ -41,9 +44,12 @@ public class App : GUIApp
             unsafe
             {
                 var Instance = Context.UnrealFactory.CreateUObject((nint)uobject.Self);
-                if (ObjectSearch.SearchMatches(Instance.NamePrivate.ToString()))
-                    VisibleObjects[Instance.Ptr] = Instance;
-                AllObjects[Instance.Ptr] = Instance;
+                lock (ObjectLock)
+                {
+                    if (ObjectSearch.SearchMatches(Instance.NamePrivate.ToString()))
+                        VisibleObjects[Instance.Ptr] = Instance;
+                    AllObjects[Instance.Ptr] = Instance;   
+                }
             }
         };
         Context.UnrealObjects.OnObjectBeginDestroy += uobject =>
@@ -51,14 +57,14 @@ public class App : GUIApp
             unsafe
             {
                 var Instance = (nint)uobject.Self;
-                if (!VisibleObjects.Remove(Instance))
+                lock (ObjectLock)
                 {
-                    // Log.Error($"UObject::BeginDestroy was called on object at 0x{Instance:x} but is not in the UObject registry!");
-                }
+                    if (!VisibleObjects.Remove(Instance))
+                    {
+                        // Log.Error($"UObject::BeginDestroy was called on object at 0x{Instance:x} but is not in the UObject registry!");
+                    }
 
-                if (!AllObjects.Remove(Instance))
-                {
-                    
+                    if (!AllObjects.Remove(Instance)) {}   
                 }
             }
         };
@@ -74,13 +80,16 @@ public class App : GUIApp
 
     internal void RecreateObjectList(Dictionary<nint, IUObject> List, Func<IUObject, bool> Callback)
     {
-        List.Clear();
-        var GUObjectArray = Context.UnrealObjects.GUObjectArray;
-        for (var i = 0; i < GUObjectArray.NumElements; i++)
+        lock (ObjectLock)
         {
-            var CurrentObject = GUObjectArray.IndexToObject(i);
-            if (CurrentObject != null && Callback(CurrentObject))
-                List[CurrentObject.Ptr] = CurrentObject;
+            List.Clear();
+            var GUObjectArray = Context.UnrealObjects.GUObjectArray;
+            for (var i = 0; i < GUObjectArray.NumElements; i++)
+            {
+                var CurrentObject = GUObjectArray.IndexToObject(i);
+                if (CurrentObject != null && Callback(CurrentObject))
+                    List[CurrentObject.Ptr] = CurrentObject;
+            }   
         }
     }
 }

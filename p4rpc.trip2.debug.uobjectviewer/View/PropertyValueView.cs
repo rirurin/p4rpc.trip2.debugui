@@ -433,16 +433,16 @@ public class EnumPropertyValueViewer(nint baseAddress, IFEnumProperty propertyTy
                             switch (PropertyTyped.ElementSize)
                             {
                                 case 1:
-                                    *(byte*)(BaseAddress + PropertyTyped.Offset_Internal) = (byte)Value;
+                                    *(byte*)(BaseAddress + PropertyTyped.Offset_Internal) = (byte)CurrentName->Value;
                                     break;
                                 case 2:
-                                    *(short*)(BaseAddress + PropertyTyped.Offset_Internal) = (short)Value;
+                                    *(short*)(BaseAddress + PropertyTyped.Offset_Internal) = (short)CurrentName->Value;
                                     break;
                                 case 4:
-                                    *(int*)(BaseAddress + PropertyTyped.Offset_Internal) = (int)Value;
+                                    *(int*)(BaseAddress + PropertyTyped.Offset_Internal) = (int)CurrentName->Value;
                                     break;
                                 default:
-                                    *(long*)(BaseAddress + PropertyTyped.Offset_Internal) = Value;
+                                    *(long*)(BaseAddress + PropertyTyped.Offset_Internal) = CurrentName->Value;
                                     break;
                             }
                         }

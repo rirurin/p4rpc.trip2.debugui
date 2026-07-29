@@ -121,7 +121,7 @@ public class StructListViewBase<TUStruct>(PropertyListView? parent, nint baseAdd
         new("Value", _ => 400),
     ];
 
-    private List<IFProperty> GetPropertyList(App owner)
+    protected virtual List<IFProperty> GetPropertyList(App owner)
     {
         var PropertyList = Value.PropertyLink.ToList();
         PropertyList.Sort((x, y) =>
@@ -146,12 +146,12 @@ public class StructListViewBase<TUStruct>(PropertyListView? parent, nint baseAdd
     {
         var PropertyList = GetPropertyList(owner);
         const ImGuiTableFlags flags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg;
+        const ImGuiTableColumnFlags columnFlags = ImGuiTableColumnFlags.WidthFixed;
         var regionAvailable = GetRegionAvailable();
         if (ImGui.BeginTable($"##StructListView{BaseAddress:x}", TABLE_COLUMNS.Length, (int)flags, ImGui.ImVec2ImVec2Nil(), 0))
         {
-            var columnFlags = (int)ImGuiTableColumnFlags.WidthFixed;
             foreach (var (Index, Column) in TABLE_COLUMNS.Select((x, i) => (i, x)))
-                ImGui.TableSetupColumn(Column.Name, columnFlags, Column.GetWidth(regionAvailable), (uint)Index);
+                ImGui.TableSetupColumn(Column.Name, (int)columnFlags, Column.GetWidth(regionAvailable), (uint)Index);
             ImGui.TableHeadersRow();
             foreach (var Property in PropertyList)
                 new StructPropertyViewer(BaseAddress, Property).Draw(owner, window);

@@ -4,6 +4,7 @@ using imgui::p4rpc.trip2.ImGui;
 using ImGui = imgui::p4rpc.trip2.ImGui.ImGui;
 
 using System.Text.RegularExpressions;
+using p4rpc.trip2.debug.uobjectviewer.View;
 using RyoTune.Reloaded;
 using UE.Toolkit.Core.Types.Unreal.Factories.Interfaces;
 
@@ -127,7 +128,7 @@ public abstract class ContextualSearchbar<TContextType> : Searchbar where TConte
     protected TContextType Context;
     protected abstract string GetTag();
 
-    protected ContextualSearchbar(TContextType context) : base() 
+    protected ContextualSearchbar(TContextType context)
     {
         SearchInput = new ResizableTextInput($"##{GetTag()}{GetHashCode()}");
         Context = context;
@@ -142,7 +143,18 @@ public class ObjectSearch(WeakReference<App> context) : ContextualSearchbar<Weak
     {
         if (!Context.TryGetTarget(out var App)) return;
         App.RecreateObjectList(App.VisibleObjects, x => SearchMatches(x.NamePrivate.ToString()));
+        App.RecreateObjectList(App.AllObjects, _ => true);
     }
 
+    public override void OnSearchClear() => OnSearchResult();
+}
+
+public class MethodSearch(ObjectListView context) : ContextualSearchbar<ObjectListView>(context)
+{
+    protected override string GetTag() => "MethodSearch";
+    
+    public override void OnSearchResult()
+        => Context.RecreateFunctionsList(x => SearchMatches(x.Inner.NamePrivate.ToString()));
+    
     public override void OnSearchClear() => OnSearchResult();
 }

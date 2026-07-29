@@ -92,12 +92,12 @@ public class MapListView(PropertyListView? parent, nint baseAddress, IFMapProper
         var regionAvailable = new Vector2(regionAvail.x, regionAvail.y);
         if (MapKeyFactory.CreateMapKey(Value, factory, out var MapKey))
         {
+            const ImGuiTableColumnFlags columnFlags = 0;
+            // const ImGuiTableColumnFlags columnFlags = ImGuiTableColumnFlags.WidthFixed;
             if (ImGui.BeginTable($"##MapListView{BaseAddress:x}", TABLE_COLUMNS.Length, (int)flags, ImGui.ImVec2ImVec2Nil(), 0))
             {
-                // var columnFlags = (int)ImGuiTableColumnFlags.WidthFixed;
-                var columnFlags = 0;
                 foreach (var (Index, Column) in TABLE_COLUMNS.Select((x, i) => (i, x)))
-                    ImGui.TableSetupColumn(Column.Name, columnFlags, Column.GetWidth(regionAvailable), (uint)Index);
+                    ImGui.TableSetupColumn(Column.Name, (int)columnFlags, Column.GetWidth(regionAvailable), (uint)Index);
                 ImGui.TableHeadersRow();
                 var Dict = new TMapDynamicDictionary(BaseAddress, MapKey, 
                     new DynamicMapValueUnrealProperty(Value.ValueProp), Memory);

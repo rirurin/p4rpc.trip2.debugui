@@ -4,6 +4,7 @@ using imgui::p4rpc.trip2.ImGui;
 using ImGui = imgui::p4rpc.trip2.ImGui.ImGui;
 
 using p4rpc.trip2.debugui.Interfaces;
+using RyoTune.Reloaded;
 
 namespace p4rpc.trip2.debug.uobjectviewer.View;
 
@@ -50,28 +51,38 @@ public class GUObjectArrayWindow(App owner) : GUIWindow<App>(owner)
             foreach (var (Index, Column) in TABLE_COLUMNS.Select((x, i) => (i, x)))
                 ImGui.TableSetupColumn(Column, 0, 0, (uint)Index);
             ImGui.TableHeadersRow();
-            var Entries = owner.VisibleObjects.ToList();
-            unsafe
+            try
             {
-                var clipper = new ImGuiListClipper.__Internal();
-                ImGui.__Internal.ImGuiListClipperBegin((nint)(&clipper), Entries.Count, 0);
-                while (ImGui.__Internal.ImGuiListClipperStep((nint)(&clipper)))
+                var Entries = owner.VisibleObjects.ToList();
+                unsafe
                 {
-                    for (var k = clipper.DisplayStart; k < clipper.DisplayEnd; k++)
+                    var clipper = new ImGuiListClipper.__Internal();
+                    ImGui.__Internal.ImGuiListClipperBegin((nint)(&clipper), Entries.Count, 0);
+                    while (ImGui.__Internal.ImGuiListClipperStep((nint)(&clipper)))
                     {
-                        var Entry = Entries[k];
-                        ImGui.TableNextRow(0, 0);
-                        ImGui.TableSetColumnIndex(0);
-                        if (ImGui.SelectableBool($"{Entry.Value.NamePrivate}##0x{Entry.Value.Ptr:X}", false,
-                                (int)ImGuiSelectableFlags.SpanAllColumns, ImGui.ImVec2ImVec2Nil()))
-                            owner.Windows.Add(new UObjectWindow(Entry.Value, owner));
-                        ImGui.TableSetColumnIndex(1);
-                        ImGui.Text($"{Entry.Value.ClassPrivate.NamePrivate}");
-                        ImGui.TableSetColumnIndex(2);
-                        ImGui.Text($"0x{Entry.Value.Ptr:X}");
+                        for (var k = clipper.DisplayStart; k < clipper.DisplayEnd; k++)
+                        {
+                            var Entry = Entries[k];
+                            ImGui.TableNextRow(0, 0);
+                            ImGui.TableSetColumnIndex(0);
+                            if (ImGui.SelectableBool($"{Entry.Value.NamePrivate}##0x{Entry.Value.Ptr:X}", false,
+                                    (int)ImGuiSelectableFlags.SpanAllColumns, ImGui.ImVec2ImVec2Nil()))
+                                owner.Windows.Add(new UObjectWindow(Entry.Value, owner));
+                            ImGui.TableSetColumnIndex(1);
+                            ImGui.Text($"{Entry.Value.ClassPrivate.NamePrivate}");
+                            ImGui.TableSetColumnIndex(2);
+                            ImGui.Text($"0x{Entry.Value.Ptr:X}");
+                        }
                     }
+
+                    ImGui.__Internal.ImGuiListClipperEnd((nint)(&clipper));
                 }
-                ImGui.__Internal.ImGuiListClipperEnd((nint)(&clipper));
+            }
+            catch (Exception ex)
+            {
+                var ErrorMessage = $"{ex.Message}\n{ex.StackTrace}";
+                ImGui.Text($"Exception occurred: {ErrorMessage}");
+                Log.Error($"{nameof(GUObjectArrayWindow)} || {ErrorMessage}");
             }
             ImGui.EndTable();
         }
