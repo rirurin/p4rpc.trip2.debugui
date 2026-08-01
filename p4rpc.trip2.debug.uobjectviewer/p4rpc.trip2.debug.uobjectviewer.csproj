@@ -45,10 +45,10 @@
     <ItemGroup>
         <PackageReference Include="Reloaded.Mod.Interfaces" Version="2.4.0" ExcludeAssets="runtime"/>
         <PackageReference Include="Reloaded.SharedLib.Hooks" Version="1.9.0"/>
-        <PackageReference Include="riri.yamlscans.ReloadedII" Version="1.1.1" />
+        <PackageReference Include="riri.yamlscans.ReloadedII" Version="1.2.0" />
         <PackageReference Include="RyoTune.Reloaded" Version="4.2.1" />
         <PackageReference Include="SharedScans.Interfaces" Version="1.2.0" />
-        <PackageReference Include="UE.Toolkit.Interfaces" Version="1.10.0" />
+        <PackageReference Include="UE.Toolkit.Interfaces" Version="1.10.1" />
     </ItemGroup>
 
     <ItemGroup>

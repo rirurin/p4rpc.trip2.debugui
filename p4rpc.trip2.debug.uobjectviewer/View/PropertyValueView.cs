@@ -61,11 +61,12 @@ public class BoolPropertyValueViewer(nint baseAddress, IFBoolProperty propertyTy
     {
         unsafe
         {
-            var Value = (*(byte*)(BaseAddress + PropertyTyped.Offset_Internal) & PropertyTyped.FieldMask) != 0;
-            if (ImGui.Checkbox($"##Property_{PropertyTyped.Ptr:x}", ref Value))
+            var Ptr = BaseAddress + PropertyTyped.Offset_Internal;
+            var Value = (*(byte*)Ptr & PropertyTyped.FieldMask) != 0;
+            if (ImGui.Checkbox($"##Property_{Ptr:x}", ref Value))
             {
-                if (Value) *(byte*)(BaseAddress + PropertyTyped.Offset_Internal) |= PropertyTyped.FieldMask;
-                else *(byte*)(BaseAddress + PropertyTyped.Offset_Internal) &= (byte)~PropertyTyped.FieldMask;
+                if (Value) *(byte*)Ptr |= PropertyTyped.FieldMask;
+                else *(byte*)Ptr &= (byte)~PropertyTyped.FieldMask;
             }
         }
     }
@@ -112,12 +113,13 @@ public class BytePropertyValueViewer(nint baseAddress, IFByteProperty propertyTy
             }
             else
             {
-                var Value = (int)*(byte*)(BaseAddress + PropertyTyped.Offset_Internal);
+                var Ptr = BaseAddress + PropertyTyped.Offset_Internal;
+                var Value = (int)*(byte*)Ptr;
                 if (ImGui.InputInt(
-                        $"##Property_{PropertyTyped.Ptr:x}",
+                        $"##Property_{Ptr:x}",
                         ref Value,
                         1, 1, 0))
-                    *(byte*)(BaseAddress + PropertyTyped.Offset_Internal) = (byte)Value;   
+                    *(byte*)Ptr = (byte)Value;   
             }
         }
     }
@@ -128,15 +130,15 @@ public class Int8PropertyValueViewer(nint baseAddress, IFProperty propertyTyped,
 {
     public override void Draw()
     {
-        
         unsafe
         {
-            var Value = (int)*(byte*)(BaseAddress + PropertyTyped.Offset_Internal);
+            var Ptr = BaseAddress + PropertyTyped.Offset_Internal;
+            var Value = (int)*(byte*)Ptr;
             if (ImGui.InputInt(
-                    $"##Property_{PropertyTyped.Ptr:x}",
+                    $"##Property_{Ptr:x}",
                     ref Value,
                     1, 1, 0))
-                *(byte*)(BaseAddress + PropertyTyped.Offset_Internal) = (byte)Value;
+                *(byte*)Ptr = (byte)Value;
         }
     }
 }
@@ -149,12 +151,13 @@ public class Int16PropertyValueViewer(nint baseAddress, IFProperty propertyTyped
         
         unsafe
         {
-            var Value = (int)*(short*)(BaseAddress + PropertyTyped.Offset_Internal);
+            var Ptr = BaseAddress + PropertyTyped.Offset_Internal;
+            var Value = (int)*(short*)Ptr;
             if (ImGui.InputInt(
-                    $"##Property_{PropertyTyped.Ptr:x}",
+                    $"##Property_{Ptr:x}",
                     ref Value,
                     1, 1, 0))
-                *(short*)(BaseAddress + PropertyTyped.Offset_Internal) = (short)Value;
+                *(short*)Ptr = (short)Value;
         }
     }
 }
@@ -167,9 +170,10 @@ public class IntPropertyValueViewer(nint baseAddress, IFProperty propertyTyped, 
         
         unsafe
         {
+            var Ptr = BaseAddress + PropertyTyped.Offset_Internal;
             ImGui.InputInt(
-                $"##Property_{PropertyTyped.Ptr:x}", 
-                ref *(int*)(BaseAddress + PropertyTyped.Offset_Internal), 
+                $"##Property_{Ptr:x}", 
+                ref *(int*)Ptr,
                 1, 1, 0);
         }
     }
@@ -183,12 +187,13 @@ public class UInt16PropertyValueViewer(nint baseAddress, IFProperty propertyType
         
         unsafe
         {
-            var Value = (int)*(ushort*)(BaseAddress + PropertyTyped.Offset_Internal);
+            var Ptr = BaseAddress + PropertyTyped.Offset_Internal;
+            var Value = (int)*(ushort*)Ptr;
             if (ImGui.InputInt(
-                    $"##Property_{PropertyTyped.Ptr:x}",
+                    $"##Property_{Ptr:x}",
                     ref Value,
                     1, 1, 0))
-                *(ushort*)(BaseAddress + PropertyTyped.Offset_Internal) = (ushort)Value;
+                *(ushort*)Ptr = (ushort)Value;
         }
     }
 }
@@ -201,9 +206,10 @@ public class FloatPropertyValueViewer(nint baseAddress, IFProperty propertyTyped
         
         unsafe
         {
+            var Ptr = BaseAddress + PropertyTyped.Offset_Internal;
             ImGui.InputFloat(
-                $"##Property_{PropertyTyped.Ptr:x}", 
-                ref *(float*)(BaseAddress + PropertyTyped.Offset_Internal), 
+                $"##Property_{Ptr:x}", 
+                ref *(float*)Ptr,
                 1, 1, "%f", 0);
         }
     }
@@ -216,9 +222,10 @@ public class DoublePropertyValueViewer(nint baseAddress, IFProperty propertyType
     {
         unsafe
         {
+            var Ptr = BaseAddress + PropertyTyped.Offset_Internal;
             ImGui.InputDouble(
-                $"##Property_{PropertyTyped.Ptr:x}", 
-                ref *(double*)(BaseAddress + PropertyTyped.Offset_Internal), 
+                $"##Property_{Ptr:x}", 
+                ref *(double*)Ptr,
                 1, 1, "%f", 0);
         }
     }
@@ -231,8 +238,9 @@ public class NamePropertyValueViewer : BasePropertyValueViewer<IFProperty>
     public NamePropertyValueViewer(nint baseAddress, IFProperty propertyTyped, IUnrealClasses unrealClasses) 
         : base(baseAddress, propertyTyped, unrealClasses)
     {
-        TextInput = new($"##Name @ 0x{BaseAddress:X}");
-        unsafe { TextInput.ReplaceBuffer(((FName*)(BaseAddress + PropertyTyped.Offset_Internal))->ToString() + '\0'); }
+        var Ptr = BaseAddress + PropertyTyped.Offset_Internal;
+        TextInput = new($"##Name @ 0x{Ptr:X}");
+        unsafe { TextInput.ReplaceBuffer(((FName*)Ptr)->ToString() + '\0'); }
     }
 
     public override void Draw()
@@ -254,12 +262,13 @@ public class StringPropertyValueViewer : BasePropertyValueViewer<IFProperty>
     public StringPropertyValueViewer(nint baseAddress, IUnrealStrings unrealStrings, IUnrealMemory unrealMemory, 
         IFProperty propertyTyped, IUnrealClasses unrealClasses) : base(baseAddress, propertyTyped, unrealClasses)
     {
-        TextInput = new($"##String @ 0x{BaseAddress:X}");
+        var Ptr = BaseAddress + PropertyTyped.Offset_Internal;
+        TextInput = new($"##String @ 0x{Ptr:X}");
         UnrealStrings = unrealStrings;
         UnrealMemory = unrealMemory;
         unsafe
         {
-            var strValue = (FString*)(BaseAddress + PropertyTyped.Offset_Internal);
+            var strValue = (FString*)Ptr;
             if (strValue->Data.ArrayNum > 0)
                 TextInput.ReplaceBuffer(strValue->ToString() + '\0');
         }
@@ -292,13 +301,14 @@ public class TextPropertyValueViewer : BasePropertyValueViewer<IFProperty>
     public TextPropertyValueViewer(IntPtr baseAddress, IUnrealStrings unrealStrings, IUnrealMemory unrealMemory,
         IFProperty property, IUnrealClasses unrealClasses, IUnrealObjects unrealObjects) : base(baseAddress, property, unrealClasses)
     {
-        TextInput = new($"##Text @ 0x{BaseAddress:X}");
+        var Ptr = BaseAddress + PropertyTyped.Offset_Internal;
+        TextInput = new($"##Text @ 0x{Ptr:X}");
         UnrealStrings = unrealStrings;
         UnrealMemory = unrealMemory;
         UnrealObjects = unrealObjects;
         unsafe
         {
-            var textValue = (FText*)(BaseAddress + Property.Offset_Internal);
+            var textValue = (FText*)Ptr;
             TextInput.ReplaceBuffer(UnrealStrings.FTextToString(textValue) + '\0');
         }
     }

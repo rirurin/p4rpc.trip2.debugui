@@ -26,6 +26,7 @@ public static class MapKeyFactory
             "Int16Property" or "UInt16Property" => new Int16DynamicMapKeyType(property, factory),
             "IntProperty" or "UInt32Property" => new IntDynamicMapKeyType(property, factory),
             "Int64Property" or "UInt64Property" => new Int64DynamicMapKeyType(property, factory),
+            "EnumProperty" => new EnumDynamicMapKeyType(property, factory, factory.CreateFEnumProperty(Key.Ptr)),
             "NameProperty" => new NameDynamicMapKeyType(property, factory),
             // Can't use these since they're defined in Toolkit.Reloaded
             /*
