@@ -13,7 +13,7 @@ namespace p4rpc.trip2.debug.uobjectviewer.View;
 
 public class UObjectWindow : GUIWindow<App>
 {
-    private IUObject Object;
+    internal readonly IUObject Object;
     public override string Title { get; }
 
     private Dictionary<PropertyListKey, PropertyListView> Views = [];

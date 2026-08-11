@@ -30,7 +30,7 @@ public class ObjectListView(PropertyListView? parent, nint baseAddress, IUClass 
     {
         const ImGuiTabBarFlags tabFlags = ImGuiTabBarFlags.Reorderable;
         if (ImGui.Button($"Class Default Object @ 0x{Value.ClassDefaultObject.Ptr:x}", ImGui.ImVec2ImVec2Nil()))
-            owner.Windows.Add(new UObjectWindow(Value.ClassDefaultObject, owner));
+            owner.TryAddWindow(Value.ClassDefaultObject);
         if (ImGui.BeginTabBar($"##ObjectListTabs{BaseAddress:x}", (int)tabFlags))
         {
             var fieldsOpen = true;

@@ -67,7 +67,7 @@ public class GUObjectArrayWindow(App owner) : GUIWindow<App>(owner)
                             ImGui.TableSetColumnIndex(0);
                             if (ImGui.SelectableBool($"{Entry.Value.NamePrivate}##0x{Entry.Value.Ptr:X}", false,
                                     (int)ImGuiSelectableFlags.SpanAllColumns, ImGui.ImVec2ImVec2Nil()))
-                                owner.Windows.Add(new UObjectWindow(Entry.Value, owner));
+                                owner.TryAddWindow(Entry.Value);
                             ImGui.TableSetColumnIndex(1);
                             ImGui.Text($"{Entry.Value.ClassPrivate.NamePrivate}");
                             ImGui.TableSetColumnIndex(2);

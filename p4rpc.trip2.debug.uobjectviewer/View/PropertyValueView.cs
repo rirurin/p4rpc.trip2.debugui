@@ -63,7 +63,7 @@ public class BoolPropertyValueViewer(nint baseAddress, IFBoolProperty propertyTy
         {
             var Ptr = BaseAddress + PropertyTyped.Offset_Internal;
             var Value = (*(byte*)Ptr & PropertyTyped.FieldMask) != 0;
-            if (ImGui.Checkbox($"##Property_{Ptr:x}", ref Value))
+            if (ImGui.Checkbox($"##Property_{Ptr:x}_{PropertyTyped.FieldMask:x}", ref Value))
             {
                 if (Value) *(byte*)Ptr |= PropertyTyped.FieldMask;
                 else *(byte*)Ptr &= (byte)~PropertyTyped.FieldMask;
@@ -394,10 +394,10 @@ public class ObjectPropertyValueViewer(nint baseAddress, IUnrealFactory factory,
                 return;
             }
             if (ImGui.Button(
-                    $"View Object##{BaseAddress + PropertyTyped.Offset_Internal:X}", 
+                    $"View Object##{Pointer:X}", 
                     ImGui.ImVec2ImVec2Nil()))
             {
-                owner.Windows.Add(new UObjectWindow(Factory.CreateUObject(Pointer), owner));
+                owner.TryAddWindow(Factory.CreateUObject(Pointer));
             }
         }
     }

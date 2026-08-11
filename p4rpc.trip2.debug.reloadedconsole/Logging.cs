@@ -1,6 +1,7 @@
 ﻿extern alias imgui;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Text;
 using imgui::p4rpc.trip2.ImGui;
 using ImGui = imgui::p4rpc.trip2.ImGui.ImGui;
 
@@ -13,7 +14,7 @@ namespace p4rpc.trip2.debug.reloadedconsole;
 // Adapted from Metaphor Multiplayer
 public class Logging : GUIApp 
 {
-    public override string Name { get; } = "Reloaded-II Console";
+    public override string Name => "Reloaded-II Console";
     public List<string> ReloadedConsole { get; } = [];
     public int LineCount { get; set; } = 32;
     private ILogger Logger;
@@ -72,20 +73,22 @@ public class LoggingWindow(Logging owner) : GUIWindow<Logging>(owner)
     public override void Draw(Logging owner)
     {
         var AsSingleLine = string.Join("\n", owner.ReloadedConsole) + '\0';
-        var SingleLineAlloc = Marshal.StringToHGlobalAnsi(AsSingleLine);
-        var regionAvail = new ImVec2.__Internal();
         unsafe
         {
-            ImGui.__Internal.GetContentRegionAvail((nint)(&regionAvail));
-            owner.LineCount = (int)regionAvail.y / (int)ImGui.GetFont().FontSize - 1;
-            ImGui.__Internal.InputTextMultiline(
-                "##ReloadedConsoleOutput",
-                (sbyte*)SingleLineAlloc,
-                AsSingleLine.Length,
-                regionAvail,
-                (int)ImGuiInputTextFlags.ReadOnly,
-                nint.Zero,nint.Zero
-            );
+            fixed (byte* pBytes = Encoding.UTF8.GetBytes(AsSingleLine))
+            {
+                var regionAvail = new ImVec2.__Internal();
+                ImGui.__Internal.GetContentRegionAvail((nint)(&regionAvail));
+                owner.LineCount = (int)regionAvail.y / (int)ImGui.GetFont().FontSize - 1;
+                ImGui.__Internal.InputTextMultiline(
+                    "##ReloadedConsoleOutput",
+                    (sbyte*)pBytes,
+                    AsSingleLine.Length,
+                    regionAvail,
+                    (int)ImGuiInputTextFlags.ReadOnly,
+                    nint.Zero,nint.Zero
+                );
+            }   
         }
     }
 }

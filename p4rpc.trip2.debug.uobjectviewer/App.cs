@@ -92,6 +92,14 @@ public class App : GUIApp
             }   
         }
     }
+
+    internal void TryAddWindow(IUObject Object)
+    {
+        var Existing = Windows.Find(x =>
+            x.GetType().Name == "UObjectWindow" && ((UObjectWindow)x).Object.Ptr == Object.Ptr);
+        if (Existing == null) Windows.Add(new UObjectWindow(Object, this));
+        else ImGui.SetWindowFocusStr(Existing.Title);
+    }
 }
 
 public class UObjectWindowColumn(string name, Func<Vector2, float> getWidth)
