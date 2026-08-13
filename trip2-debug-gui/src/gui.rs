@@ -9,7 +9,8 @@ use std::time::{Duration, Instant};
 use gilrs_imgui_support::state::{GamepadBuilder, GamepadState};
 use glam::{UVec2, Vec2};
 use imgui::{BackendFlags, Condition, ConfigFlags, Context as ImContext, FontGlyphRanges, FontId, ImColor32, Ui};
-use imgui::internal::RawWrapper;
+use imgui::internal::{RawCast, RawWrapper};
+use imgui_sys::ImWchar;
 use imgui_winit_support::{HiDpiMode, WinitPlatform};
 use riri_imgui_vulkano::context::RendererContext;
 use riri_inspector_components::clipboard::ClipboardSupport;
@@ -45,6 +46,7 @@ pub struct Gui {
     time_elapsed: f32,
     count: usize,
     show_metrics: bool,
+    noto_sans_glyph_ranges: Vec<ImWchar>
 }
 
 pub type EventStateInner = Option<EventLoop>;
@@ -166,15 +168,6 @@ impl GuiThread {
                 GuiState::ensure_running();
                 EventState::tick();
 
-                /*
-                let mut windows = WINDOW_STATES.lock().unwrap();
-                *windows = WindowStatePointer::null();
-                drop(windows);
-                let mut apps = APP_STATES.lock().unwrap();
-                *apps = AppStatePointer::null();
-                drop(apps);
-                */
-
                 let mut interop = INTEROP_STATE.lock().unwrap();
                 *interop = InteropStatePointer::null();
                 drop(interop);
@@ -244,6 +237,7 @@ impl Gui {
             time_elapsed: 0.,
             count: 0,
             show_metrics: false,
+            noto_sans_glyph_ranges: vec![]
         })
     }
 
@@ -366,6 +360,28 @@ impl Gui {
             }
         }
     }
+
+    fn get_noto_sans_glyph_range(&mut self) -> FontGlyphRanges {
+        if self.noto_sans_glyph_ranges.len() == 0 {
+            let fonts = unsafe {&raw const *self.get_imgui_mut().fonts().raw() as *mut _ };
+            // imgui 1.91.3:  full_ranges for ImFontAtlas::GetGlyphRangesJapanese is 6009 * sizeof(ImWchar) (incl null terminator)
+            let glyph_ranges_jp = unsafe { imgui_sys::ImFontAtlas_GetGlyphRangesJapanese(fonts) };
+            self.noto_sans_glyph_ranges.reserve(6011);
+            unsafe { std::ptr::copy_nonoverlapping(
+                glyph_ranges_jp,
+                self.noto_sans_glyph_ranges.as_mut_ptr(),
+                6008
+            ) };
+            unsafe { self.noto_sans_glyph_ranges.set_len(6008) };
+            // Box-drawing characters: https://unicode.org/charts/PDF/U2500.pdf
+            // U+2500 - U+257F
+            // Used in Persona 3 Reload to draw Tartarus floor layout in Debug
+            self.noto_sans_glyph_ranges.push(0x2500);
+            self.noto_sans_glyph_ranges.push(0x257F);
+            self.noto_sans_glyph_ranges.push(0);
+        }
+        unsafe { FontGlyphRanges::from_ptr(self.noto_sans_glyph_ranges.as_ptr()) }
+    }
 }
 
 impl ApplicationHandler for Gui {
@@ -392,7 +408,8 @@ impl ApplicationHandler for Gui {
         );
         self.get_imgui_mut().io_mut().mouse_pos = [0., 0.];
         let hidpi_factor = self.platform.as_ref().unwrap().hidpi_factor();
-        self.add_font("NotoSansCJKjp-Medium.otf", FontGlyphRanges::japanese(), 15.).unwrap();
+        let noto_sans_glyph_range = self.get_noto_sans_glyph_range();
+        self.add_font("NotoSansCJKjp-Medium.otf", noto_sans_glyph_range, 15.).unwrap();
         self.add_font("QwitcherGrypen-Bold.ttf", FontGlyphRanges::default(), 90.).unwrap();
         self.get_imgui_mut().io_mut().font_global_scale = (1.0 / hidpi_factor) as f32;
         self.renderer = Some(VulkanContext::new(
