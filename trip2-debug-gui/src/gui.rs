@@ -15,6 +15,7 @@ use imgui_winit_support::{HiDpiMode, WinitPlatform};
 use riri_imgui_vulkano::context::RendererContext;
 use riri_inspector_components::clipboard::ClipboardSupport;
 use riri_mod_tools_rt::address::ProcessInfo;
+use riri_mod_tools_rt::logln;
 use riri_mod_tools_rt::mod_loader_data::{get_directory_for_mod, CSharpString};
 use vulkano::format::ClearValue;
 use windows::core::PCWSTR;
@@ -292,7 +293,25 @@ impl Gui {
         window: Arc<Box<dyn Window>>,
         show_metrics: &mut bool
     ) -> Option<String> {
-        let mut style_to_apply = None;
+        let config_style: String = unsafe { get_theme_name().into() };
+        let mut theme_update_lock = THEME_UPDATED_EXTERNALLY.lock().unwrap();
+        let mut style_to_apply = match *theme_update_lock {
+            true => {
+                *theme_update_lock = false;
+                match themes.contains(&config_style) {
+                    true => Some(config_style.clone()),
+                    false => {
+                        if config_style != "Default" {
+                            logln!(Warning, "Could not find the style named \"{}\"", config_style);
+                        }
+                        None
+                    }
+                }
+            },
+            false => None
+        };
+        drop(theme_update_lock);
+        // let mut style_to_apply = None;
         let external_lock = INTEROP_STATE.lock().unwrap();
         let external = external_lock.0
             .map(|v| unsafe { v.as_ref() });
@@ -307,8 +326,12 @@ impl Gui {
             }
             if let Some(_menu) = ui.begin_menu_with_enabled("Themes", true) {
                 for theme in themes.iter() {
-                    if ui.menu_item(&theme.name) {
+                    if ui.menu_item_config(&theme.name)
+                        .selected(&theme.name == &config_style)
+                        .build() {
                         style_to_apply = Some(theme.name.clone());
+                        let theme_name_ffi = format!("{}\0", theme.name);
+                        unsafe { set_theme_name(theme_name_ffi.as_ptr()) };
                     }
                 }
             }
@@ -805,4 +828,37 @@ pub unsafe extern "C" fn get_font(name: CSharpString) -> FontId {
     let null_font = unsafe { std::mem::transmute::<*const imgui::Font, FontId>(std::ptr::null())};
     let Some(gui) = gui_state.as_mut() else { return null_font; };
     gui.fonts.get(&Into::<String>::into(name)).map_or(null_font, |v| *v)
+}
+
+type SetGetThemeNameFn = unsafe extern "C" fn() -> CSharpString;
+
+pub static GET_THEME_NAME: OnceLock<SetGetThemeNameFn> = OnceLock::new();
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn set_get_theme_name(cb: SetGetThemeNameFn) {
+    GET_THEME_NAME.set(cb).unwrap();
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn get_theme_name() -> CSharpString {
+    unsafe { GET_THEME_NAME.get().unwrap()() }
+}
+
+type SetSetThemeNameFn = unsafe extern "C" fn(*const u8);
+
+pub static SET_THEME_NAME: OnceLock<SetSetThemeNameFn> = OnceLock::new();
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn set_set_theme_name(cb: SetSetThemeNameFn) {
+    SET_THEME_NAME.set(cb).unwrap();
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn set_theme_name(name: *const u8) {
+    unsafe { SET_THEME_NAME.get().unwrap()(name) }
+}
+
+static THEME_UPDATED_EXTERNALLY: Mutex<bool> = Mutex::new(true);
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn theme_updated_externally() {
+    *THEME_UPDATED_EXTERNALLY.lock().unwrap() = true;
 }

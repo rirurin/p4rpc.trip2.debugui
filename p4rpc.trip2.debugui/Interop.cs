@@ -4,6 +4,7 @@ using ImGui = imgui::p4rpc.trip2.ImGui.ImGui;
 
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using p4rpc.trip2.debugui.Configuration;
 using p4rpc.trip2.debugui.Interfaces;
 using RyoTune.Reloaded;
 
@@ -62,6 +63,7 @@ public static unsafe class Trip2DebugGui
 
     private static string? Namespace;
     private static Context? _context;
+    private static Config? _configuration;
 
     internal static Dictionary<uint, IGUIApp> Apps { get; } = new();
     internal static Dictionary<ulong, Action> Buttons { get; } = new();
@@ -111,6 +113,15 @@ public static unsafe class Trip2DebugGui
     [DllImport(__DllName, EntryPoint = "get_font", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
     internal static extern nint get_font(nint name);
     
+    [DllImport(__DllName, EntryPoint = "set_get_theme_name", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+    internal static extern nint set_get_theme_name(delegate* unmanaged[Stdcall]<nint> callback);
+    
+    [DllImport(__DllName, EntryPoint = "set_set_theme_name", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+    internal static extern nint set_set_theme_name(delegate* unmanaged[Stdcall]<nint, void> callback);
+    
+    [DllImport(__DllName, EntryPoint = "theme_updated_externally", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+    internal static extern nint theme_updated_externally();
+    
     // riri-mod-tools functions
     
     [DllImport(__DllName, EntryPoint = "set_current_process", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
@@ -150,7 +161,7 @@ public static unsafe class Trip2DebugGui
     private static void LoggerWrite(string text, RustLogLevel level) => PrintDelegate(level)(text, false);
     
     [UnmanagedCallersOnly(CallConvs = [ typeof(CallConvStdcall) ])]
-    public static unsafe nint GetDirectoryForMod()
+    public static nint GetDirectoryForMod()
     {
         var ModDirectory = _context!.ModLoader.GetDirectoryForModId(_context!.ModConfig.ModId);
         return Marshal.StringToHGlobalUni(ModDirectory);
@@ -204,9 +215,20 @@ public static unsafe class Trip2DebugGui
         Action();
     }
 
-    internal static void Initialize(Context context)
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
+    public static nint GetThemeName() => Marshal.StringToHGlobalUni(_configuration!.ThemeName);
+
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
+    public static void SetThemeName(nint ThemeName)
+    {
+        _configuration!.ThemeName = Marshal.PtrToStringUTF8(ThemeName) ?? "Default";
+        _configuration!.Save!();
+    }
+
+    internal static void Initialize(Context context, Config configuration)
     {
         _context = context;
+        _configuration = configuration;
         Namespace = typeof(Trip2DebugGui).Namespace;
         set_current_process();
         set_reloaded_logger(&ReloadedLoggerWrite);
@@ -220,6 +242,14 @@ public static unsafe class Trip2DebugGui
         set_remove_window(&RemoveWindow);
         set_get_branch_version(&GetBranchVersion);
         set_button_action(&ButtonAction);
+        set_get_theme_name(&GetThemeName);
+        set_set_theme_name(&SetThemeName);
+    }
+
+    internal static void ConfigurationUpdated(Config configuration)
+    {
+        _configuration = configuration;
+        theme_updated_externally();
     }
 }
 

@@ -390,6 +390,10 @@ impl ThemeRegistry {
         self.sort_by(|a, b| a.name.cmp(&b.name));
         Ok(())
     }
+
+    pub fn contains(&self, name: &str) -> bool {
+        self.0.iter().find(|x| x.name == name).is_some()
+    }
 }
 
 #[cfg(test)]

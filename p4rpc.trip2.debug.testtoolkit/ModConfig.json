@@ -2,7 +2,7 @@
   "ModId": "p4rpc.trip2.debug.testtoolkit",
   "ModName": "[trip2] Debug UI - UE Toolkit Tests",
   "ModAuthor": "Rirurin",
-  "ModVersion": "0.1.0",
+  "ModVersion": "0.2.0",
   "ModDescription": "Unit tests for UE Toolkit",
   "ModDll": "p4rpc.trip2.debug.testtoolkit.dll",
   "ModIcon": "Preview.png",

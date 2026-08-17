@@ -2,7 +2,7 @@
   "ModId": "p4rpc.trip2.debug.reloadedconsole",
   "ModName": "[trip2] Debug UI - Reloaded-II Console",
   "ModAuthor": "Rirurin",
-  "ModVersion": "0.1.0",
+  "ModVersion": "0.2.0",
   "ModDescription": "Prints the Reloaded-II console output into the ImGui window",
   "ModDll": "p4rpc.trip2.debug.reloadedconsole.dll",
   "ModIcon": "Preview.png",

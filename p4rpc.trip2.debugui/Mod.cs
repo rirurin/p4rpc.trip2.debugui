@@ -38,7 +38,7 @@ public class Mod : ModBase, IExports
 
         _context = new(_modLoader, _hooks!, _modConfig, YamlScans.GetDependency<ISharedScans>(),
             YamlScans.GetDependency<IUnrealEssentials>());
-        Trip2DebugGui.Initialize(_context);
+        Trip2DebugGui.Initialize(_context, _configuration);
         _guiState = new();
         _modLoader.AddOrReplaceController<IGUIState>(_owner, _guiState);
         _tick = new(_context, _guiState);
@@ -50,6 +50,7 @@ public class Mod : ModBase, IExports
     {
         _configuration = configuration;
         _logger.WriteLine($"[{_modConfig.ModId}] Config Updated: Applying");
+        Trip2DebugGui.ConfigurationUpdated(configuration);
     }
 
     #endregion

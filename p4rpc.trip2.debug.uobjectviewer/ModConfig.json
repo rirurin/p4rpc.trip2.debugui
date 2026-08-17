@@ -2,7 +2,7 @@
   "ModId": "p4rpc.trip2.debug.uobjectviewer",
   "ModName": "[trip2] Debug UI - UObject Viewer",
   "ModAuthor": "Rirurin",
-  "ModVersion": "0.1.0",
+  "ModVersion": "0.2.0",
   "ModDescription": "Unreal Object viewer for ImGui Debug UI",
   "ModDll": "p4rpc.trip2.debug.uobjectviewer.dll",
   "ModIcon": "Preview.png",

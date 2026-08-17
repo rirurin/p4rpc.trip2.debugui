@@ -2,7 +2,7 @@
   "ModId": "p4rpc.trip2.debugui",
   "ModName": "[trip2] ImGui Debug UI",
   "ModAuthor": "Rirurin",
-  "ModVersion": "0.1.0",
+  "ModVersion": "0.2.0",
   "ModDescription": "Hosts a debug GUI window using ImGui",
   "ModDll": "p4rpc.trip2.debugui.dll",
   "ModIcon": "Preview.png",

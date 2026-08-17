@@ -2,7 +2,7 @@
   "ModId": "p4rpc.trip2.debug.helloworld",
   "ModName": "[trip2] Debug UI - Hello World",
   "ModAuthor": "Rirurin",
-  "ModVersion": "0.1.0",
+  "ModVersion": "0.2.0",
   "ModDescription": "Sample Window",
   "ModDll": "p4rpc.trip2.debug.helloworld.dll",
   "ModIcon": "Preview.png",
