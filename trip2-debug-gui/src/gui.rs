@@ -47,7 +47,12 @@ pub struct Gui {
     time_elapsed: f32,
     count: usize,
     show_metrics: bool,
-    noto_sans_glyph_ranges: Vec<ImWchar>
+    noto_sans_glyph_ranges: Vec<ImWchar>,
+
+    update_size_for_config: bool,
+    last_size_update: f32,
+    update_pos_for_config: bool,
+    last_pos_update: f32,
 }
 
 pub type EventStateInner = Option<EventLoop>;
@@ -190,6 +195,7 @@ pub(crate) static SURFACE_SIZE: Mutex<Vec2> = Mutex::new(Vec2::ZERO);
 
 // Resource ID as defined in FWindowsPlatformApplicationMisc::CreateApplication (UE4/UE5)
 const PROGRAM_ICON_UE5: usize = 0x7b;
+const POS_SIZE_UPDATE_DELAY_TIME: f32 = 0.5;
 
 impl Gui {
     pub fn get_name(&self) -> &str {
@@ -238,7 +244,11 @@ impl Gui {
             time_elapsed: 0.,
             count: 0,
             show_metrics: false,
-            noto_sans_glyph_ranges: vec![]
+            noto_sans_glyph_ranges: vec![],
+            update_size_for_config: false,
+            last_size_update: 0.,
+            update_pos_for_config: false,
+            last_pos_update: 0.,
         })
     }
 
@@ -414,8 +424,8 @@ impl ApplicationHandler for Gui {
         let attr = WindowAttributes::default()
             .with_visible(false)
             .with_title(self.get_name())
-            .with_surface_size(Size::Physical(PhysicalSize::new(1920, 1080)))
-            .with_position(Position::Physical(PhysicalPosition::new(100, 100)));
+            .with_surface_size(Size::Physical(get_window_size()))
+            .with_position(Position::Physical(get_window_pos()));
         self.window = Some(Arc::new(event_loop.create_window(attr).unwrap()));
         self.set_window_icon();
         self.imgui = Some(ImContext::create());
@@ -487,11 +497,46 @@ impl ApplicationHandler for Gui {
                     let Some(style) = self.themes.iter().find(|th| th.name == style_to_apply) {
                     style.apply(imgui.style_mut());
                 }
+                if *WINDOW_SIZE_POS_UPDATED_EXTERNALLY.lock().unwrap() {
+                    let _ = window.request_surface_size(Size::Physical(get_window_size()));
+                    window.set_outer_position(Position::Physical(get_window_pos()));
+                    *WINDOW_SIZE_POS_UPDATED_EXTERNALLY.lock().unwrap() = false;
+                    self.update_size_for_config = false;
+                    self.update_pos_for_config = false;
+                }
+                let mut save_to_config = false;
+                if self.update_size_for_config && self.time_elapsed - self.last_size_update > POS_SIZE_UPDATE_DELAY_TIME {
+                    set_window_size(window.surface_size());
+                    self.update_size_for_config = false;
+                    save_to_config = true;
+                }
+                if self.update_pos_for_config && self.time_elapsed - self.last_pos_update > POS_SIZE_UPDATE_DELAY_TIME {
+                    if let Ok(pos) = window.outer_position() {
+                        set_window_pos(pos);
+                        self.update_pos_for_config = false;
+                        save_to_config = true;
+                    }
+                }
+                if save_to_config {
+                    save_config();
+                }
             },
             WindowEvent::SurfaceResized(_) => {
                 let io = imgui.io_mut();
                 platform.handle_window_event(io, window.as_ref().as_ref(), &event);
                 renderer.refresh(window.clone()).unwrap();
+                if self.time_elapsed > POS_SIZE_UPDATE_DELAY_TIME {
+                    self.update_size_for_config = true;
+                }
+                self.last_size_update = self.time_elapsed;
+            },
+            WindowEvent::Moved(_) => {
+                let io = imgui.io_mut();
+                platform.handle_window_event(io, window.as_ref().as_ref(), &event);
+                if self.time_elapsed > POS_SIZE_UPDATE_DELAY_TIME {
+                    self.update_pos_for_config = true;
+                }
+                self.last_pos_update = self.time_elapsed;
             },
             v => {
                 let io = imgui.io_mut();
@@ -830,6 +875,8 @@ pub unsafe extern "C" fn get_font(name: CSharpString) -> FontId {
     gui.fonts.get(&Into::<String>::into(name)).map_or(null_font, |v| *v)
 }
 
+// Configuration: Theme Name
+
 type SetGetThemeNameFn = unsafe extern "C" fn() -> CSharpString;
 
 pub static GET_THEME_NAME: OnceLock<SetGetThemeNameFn> = OnceLock::new();
@@ -861,4 +908,79 @@ static THEME_UPDATED_EXTERNALLY: Mutex<bool> = Mutex::new(true);
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn theme_updated_externally() {
     *THEME_UPDATED_EXTERNALLY.lock().unwrap() = true;
+}
+
+// Configuration: Window Size
+
+type SetGetWindowSizeFn = unsafe extern "C" fn() -> u32;
+
+pub static GET_WINDOW_SIZE: OnceLock<SetGetWindowSizeFn> = OnceLock::new();
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn set_get_window_size(cb: SetGetWindowSizeFn) {
+    GET_WINDOW_SIZE.set(cb).unwrap();
+}
+
+pub fn get_window_size() -> PhysicalSize<u32> {
+    let raw = unsafe { GET_WINDOW_SIZE.get().unwrap()() };
+    PhysicalSize::new(raw & 0xffff, raw >> 0x10)
+}
+
+type SetSetWindowSizeFn = unsafe extern "C" fn(u32);
+
+pub static SET_WINDOW_SIZE: OnceLock<SetSetWindowSizeFn> = OnceLock::new();
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn set_set_window_size(cb: SetSetWindowSizeFn) {
+    SET_WINDOW_SIZE.set(cb).unwrap();
+}
+
+pub fn set_window_size(value: PhysicalSize<u32>) {
+    let raw = value.width | (value.height << 0x10);
+    unsafe { SET_WINDOW_SIZE.get().unwrap()(raw) }
+}
+
+// Configuration: Window Pos
+
+type SetGetWindowPosFn = unsafe extern "C" fn() -> u32;
+
+pub static GET_WINDOW_POS: OnceLock<SetGetWindowPosFn> = OnceLock::new();
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn set_get_window_pos(cb: SetGetWindowPosFn) {
+    GET_WINDOW_POS.set(cb).unwrap();
+}
+
+pub fn get_window_pos() -> PhysicalPosition<i32> {
+    let raw = unsafe { GET_WINDOW_POS.get().unwrap()() };
+    PhysicalPosition::new((raw & 0xffff) as i32, (raw >> 0x10) as i32)
+}
+
+type SetSetWindowPosFn = unsafe extern "C" fn(u32);
+
+pub static SET_WINDOW_POS: OnceLock<SetSetWindowPosFn> = OnceLock::new();
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn set_set_window_pos(cb: SetSetWindowPosFn) {
+    SET_WINDOW_POS.set(cb).unwrap();
+}
+
+pub fn set_window_pos(value: PhysicalPosition<i32>) {
+    let raw = (value.x as u32) | ((value.y as u32) << 0x10);
+    unsafe { SET_WINDOW_POS.get().unwrap()(raw) }
+}
+
+type SetSaveConfigFn = unsafe extern "C" fn() -> u32;
+
+pub static SAVE_CONFIG: OnceLock<SetSaveConfigFn> = OnceLock::new();
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn set_save_config(cb: SetSaveConfigFn) {
+    SAVE_CONFIG.set(cb).unwrap();
+}
+
+static WINDOW_SIZE_POS_UPDATED_EXTERNALLY: Mutex<bool> = Mutex::new(false);
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn window_size_position_updated_externally() {
+    *WINDOW_SIZE_POS_UPDATED_EXTERNALLY.lock().unwrap() = true;
+}
+
+pub fn save_config() {
+    unsafe { SAVE_CONFIG.get().unwrap()() };
 }

@@ -48,7 +48,7 @@
         <PackageReference Include="riri.yamlscans.ReloadedII" Version="1.2.0" />
         <PackageReference Include="RyoTune.Reloaded" Version="4.2.1" />
         <PackageReference Include="SharedScans.Interfaces" Version="1.2.0" />
-        <PackageReference Include="UE.Toolkit.Interfaces" Version="1.10.1" />
+        <PackageReference Include="UE.Toolkit.Interfaces" Version="1.10.4" />
     </ItemGroup>
 
     <ItemGroup>

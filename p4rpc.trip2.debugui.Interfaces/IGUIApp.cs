@@ -1,4 +1,6 @@
-﻿namespace p4rpc.trip2.debugui.Interfaces;
+﻿using System.Numerics;
+
+namespace p4rpc.trip2.debugui.Interfaces;
 
 public interface IGUIApp
 {
@@ -21,4 +23,10 @@ public abstract class GUIApp(IGUIState state) : IGUIApp
     public abstract void Tick(float DeltaTime);
     public IGUIState? State { get; protected init; } = state;
     public bool RemoveWindow(IGUIWindow window) => Windows.Remove(window);
+
+    public Vector2 GetProportionalSize(float pwidth, float pheight)
+    {
+        var SurfaceSize = State.GetSurfaceSize();
+        return new Vector2(SurfaceSize.X * pwidth, SurfaceSize.Y * pheight);
+    }
 }

@@ -13,26 +13,11 @@ public class GUObjectArrayWindow(App owner) : GUIWindow<App>(owner)
     public override string Title => "All Loaded UObjects";
 
     private static string[] TABLE_COLUMNS = ["Type", "Name", "Address"];
-
-    public override Vector2 StartSize
-    {
-        get
-        {
-            if (!Owner.TryGetTarget(out var App)) return Vector2.Zero; 
-            var SurfaceSize = App.State!.GetSurfaceSize();
-            return new Vector2(SurfaceSize.X / 2, SurfaceSize.Y * 3 / 4);
-        }
-    }
     
-    public override Vector2 StartPos
-    {
-        get
-        {
-            if (!Owner.TryGetTarget(out var App)) return Vector2.Zero;
-            var SurfaceSize = App.State!.GetSurfaceSize();
-            return new Vector2(15, 30);
-        }
-    }
+    public override Vector2 StartSize => 
+        Owner.TryGetTarget(out var App) ? App.GetProportionalSize(0.5f, 0.75f) : Vector2.Zero;
+    
+    public override Vector2 StartPos => Owner.TryGetTarget(out var App) ? new Vector2(15, 30) : Vector2.Zero;
 
     public override void Draw(App owner)
     {

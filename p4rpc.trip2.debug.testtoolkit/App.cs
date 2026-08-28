@@ -406,16 +406,9 @@ public class AppWindow : GUIWindow<App>
             new AddPropertiesTest(Owner), new AddScriptStruct(Owner), new CallMethodProcessEvent(Owner),
         ]);
     }
-
-    public override Vector2 StartSize
-    {
-        get
-        {
-            if (!Owner.TryGetTarget(out var App)) return Vector2.Zero;
-            var SurfaceSize = App.State!.GetSurfaceSize();
-            return new Vector2(SurfaceSize.X / 3, SurfaceSize.Y / 3);
-        }
-    }
+    
+    public override Vector2 StartSize => 
+        Owner.TryGetTarget(out var App) ? App.GetProportionalSize(0.33f, 0.33f) : Vector2.Zero;
     
     public override Vector2 StartPos => Owner.TryGetTarget(out _) ? new Vector2(15, 30) : Vector2.Zero;
 

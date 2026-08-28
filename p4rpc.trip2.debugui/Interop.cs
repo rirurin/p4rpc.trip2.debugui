@@ -122,6 +122,24 @@ public static unsafe class Trip2DebugGui
     [DllImport(__DllName, EntryPoint = "theme_updated_externally", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
     internal static extern nint theme_updated_externally();
     
+    [DllImport(__DllName, EntryPoint = "set_get_window_size", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+    internal static extern nint set_get_window_size(delegate* unmanaged[Stdcall]<int> callback);
+    
+    [DllImport(__DllName, EntryPoint = "set_set_window_size", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+    internal static extern nint set_set_window_size(delegate* unmanaged[Stdcall]<int, void> callback);
+    
+    [DllImport(__DllName, EntryPoint = "set_get_window_pos", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+    internal static extern nint set_get_window_pos(delegate* unmanaged[Stdcall]<int> callback);
+    
+    [DllImport(__DllName, EntryPoint = "set_set_window_pos", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+    internal static extern nint set_set_window_pos(delegate* unmanaged[Stdcall]<int, void> callback);
+    
+    [DllImport(__DllName, EntryPoint = "window_size_position_updated_externally", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+    internal static extern nint window_size_position_updated_externally();
+    
+    [DllImport(__DllName, EntryPoint = "set_save_config", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+    internal static extern nint set_save_config(delegate* unmanaged[Stdcall]<void> callback);
+    
     // riri-mod-tools functions
     
     [DllImport(__DllName, EntryPoint = "set_current_process", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
@@ -224,6 +242,34 @@ public static unsafe class Trip2DebugGui
         _configuration!.ThemeName = Marshal.PtrToStringUTF8(ThemeName) ?? "Default";
         _configuration!.Save!();
     }
+    
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
+    public static int GetWindowSize() => _configuration!.WindowSize.ToInt();
+
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
+    public static void SetWindowSize(int Value)
+    {
+        _configuration!.WindowSize = new(Value);
+        Log.Debug($"Saved Window size is now {_configuration!.WindowSize}");
+        // _configuration!.Save!();
+    }
+    
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
+    public static int GetWindowPos() => _configuration!.WindowPos.ToInt();
+    
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
+    public static void SetWindowPos(int Value)
+    {
+        _configuration!.WindowPos = new(Value);
+        Log.Debug($"Saved Window position is now {_configuration!.WindowPos}");
+        // _configuration!.Save!();
+    }
+    
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
+    public static void SaveConfig()
+    {
+        _configuration!.Save!();
+    }
 
     internal static void Initialize(Context context, Config configuration)
     {
@@ -244,12 +290,18 @@ public static unsafe class Trip2DebugGui
         set_button_action(&ButtonAction);
         set_get_theme_name(&GetThemeName);
         set_set_theme_name(&SetThemeName);
+        set_get_window_size(&GetWindowSize);
+        set_set_window_size(&SetWindowSize);
+        set_get_window_pos(&GetWindowPos);
+        set_set_window_pos(&SetWindowPos);
+        set_save_config(&SaveConfig);
     }
 
     internal static void ConfigurationUpdated(Config configuration)
     {
         _configuration = configuration;
         theme_updated_externally();
+        window_size_position_updated_externally();
     }
 }
 
